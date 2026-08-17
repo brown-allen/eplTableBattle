@@ -52,12 +52,12 @@ decode_pick_code <- function(code, teams = load_teams()) {
 
 #' Read a file of codes and rewrite the prediction + player sheets.
 #'
-#' @param path         text file, one code per line
+#' @param path         text file, one code per line (default data/codes.txt)
 #' @param predictions  wide sheet to write
 #' @param players      roster to update
 #' @param replace      if TRUE, entrants absent from the code file are dropped;
 #'                     if FALSE (default) they are kept as they are
-ingest_codes <- function(path,
+ingest_codes <- function(path = "data/codes.txt",
                          predictions = "data/predictions.csv",
                          players = "data/players.csv",
                          teams = load_teams(),

@@ -86,11 +86,25 @@ Allen Brown:TOT,MAN,COV,AVL,SUN,BOU,HUL,BHA,IPS,CHE,...
 
 GitHub Pages is static hosting — there is no server, so the page cannot submit
 anything anywhere. Entrants send you that line however you already talk to them.
-Collect the six of them in a text file, one per line:
+
+Collect them in **`data/codes.txt`**, one code per line. Blank lines and lines
+starting with `#` are ignored, so you can annotate as you go:
+
+```
+# received by text, Tue evening
+Allen Brown:LIV,ARS,MCI,CHE,NEW,AVL,TOT,MAN,BHA,NFO,CRY,EVE,BRE,FUL,BOU,SUN,LEE,IPS,HUL,COV
+Sam O'Neill:ARS,LIV,CHE,MCI,TOT,NEW,MAN,AVL,BHA,CRY,NFO,BRE,EVE,FUL,LEE,BOU,SUN,IPS,COV,HUL
+```
+
+That path is the default, so ingesting takes no argument:
 
 ```bash
-Rscript -e 'source("R/ingest.R"); ingest_codes("data/codes.txt")'
+Rscript -e 'source("R/ingest.R"); ingest_codes()'
 ```
+
+`data/codes.txt` is gitignored on purpose: pushing it before Thursday would
+publish people's entries early. `predictions.csv` and `predictions_frozen.csv`
+are the records that count, and those are committed.
 
 That validates every code, rewrites `data/predictions.csv`, and updates
 `data/players.csv` — the name before the colon is carried through verbatim, so

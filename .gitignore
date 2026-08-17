@@ -7,6 +7,11 @@
 .Renviron
 .Renviron.*
 !.Renviron.example
+
+# Raw pick codes as they arrive. Kept out of git so that pushing before the
+# deadline cannot publish anyone's entry early -- predictions.csv and
+# predictions_frozen.csv are the records that count.
+data/codes.txt
 *.knit.md
 *.utf8.md
 .DS_Store
