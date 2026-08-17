@@ -1,5 +1,5 @@
 ---
-title: "The Predictions"
+title: "Prediction Details"
 ---
 
 ```{r, child="_setup.Rmd"}
@@ -9,8 +9,8 @@ title: "The Predictions"
 cat(as.character(lock_banner()))
 ```
 
-Each table below is exactly as its author submitted it,
-`r if (is_locked()) "sealed at" else "and will be sealed at"`
+Each table below appears as submitted,
+`r if (is_locked()) "fixed at" else "and will be fixed at"`
 **`r fmt_when(CONFIG$lock_time)`**. The *Actual* column is where that club sits
 in the live table right now, and *Off by* is the damage.
 

@@ -25,10 +25,10 @@ ignores the change, so a late edit cannot quietly reach the site.
 
 ```{r scoring-desc, results='asis'}
 cat(describe_method())
-```
 
-**Currently active rule:** `` `r CONFIG$scoring_method` `` —
-`r if (score_direction() == "lower") "lowest total wins" else "highest total wins"`.
+# **Currently active rule:** `` `r CONFIG$scoring_method` `` —
+# `r if (score_direction() == "lower") "lowest total wins" else "highest total wins"`.
+```
 
 Ties are broken by (1) more exact positions called, then (2) a smaller worst
 single miss.
@@ -104,29 +104,20 @@ knitr::kable(ex, align = c("l", "r", "r", "r", "r")) |>
 
 Across three clubs that entrant would score
 `r sum(SCORERS[[CONFIG$scoring_method]](data.frame(predicted = c(1L,2L,12L), actual = c(1L,4L,9L))))`.
-The real thing runs over all `r nrow(TEAMS)`.
+The real thing runs over all `r nrow(TEAMS)` clubs.
 
-<p class="note">
-The points method is still being finalised. Changing it means editing one line —
-<code>scoring_method</code> in <code>R/config.R</code> — or adding a function to
-<code>SCORERS</code> in <code>R/scoring.R</code>. Every page recalculates from
-whatever is set there; nothing else needs touching.
-</p>
+```{r include = FALSE}
+#<p class="note">
+#The points method is still being finalised. Changing it means editing one line —
+#<code>scoring_method</code> in <code>R/config.R</code> — or adding a function to
+#<code>SCORERS</code> in <code>R/scoring.R</code>. Every page recalculates from
+#whatever is set there; nothing else needs touching.
+#</p>
+```
+
 
 ## Data
 
 The live table is pulled from
-**`r provider_label(attr(LIVE, "provider"))`** each time the site is rebuilt,
-with the other of football-data.org and ESPN standing by as an automatic
-fallback. It is cached to `data/live_table.csv`, so if both fail the site still
-builds from the last good snapshot and says so on the front page.
-
-## The clubs
-
-```{r clubs}
-TEAMS |>
-  dplyr::transmute(Club = team, `Also accepted as` = gsub("|", ", ", aliases, fixed = TRUE)) |>
-  knitr::kable(align = c("l", "l")) |>
-  kableExtra::kable_styling(bootstrap_options = c("striped", "condensed"),
-                            full_width = TRUE, font_size = 12)
-```
+**`r provider_label(attr(LIVE, "provider"))`** each time the site is rebuilt. It is cached to `data/live_table.csv`, so if both fail the site still
+builds from the last good snapshot and says so on the front page. Refresh your cache or reach out to the Commissioner if the data seems off.

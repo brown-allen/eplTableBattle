@@ -280,7 +280,7 @@ $(document).ready(function () {
 them with the arrows. Your draft saves in this browser as you go, so you
 can close the tab and come back to it. When the table looks right, hit
 <strong>Copy my code</strong> at the bottom and send that one line to
-Allen.</p>
+the Commisioner.</p>
 <script>
 const PICKER_DATA = {"teams":[{"name":"Arsenal","abbrev":"ARS","short":"Arsenal"},{"name":"Aston Villa","abbrev":"AVL","short":"Aston Villa"},{"name":"AFC Bournemouth","abbrev":"BOU","short":"Bournemouth"},{"name":"Brentford","abbrev":"BRE","short":"Brentford"},{"name":"Brighton & Hove Albion","abbrev":"BHA","short":"Brighton"},{"name":"Chelsea","abbrev":"CHE","short":"Chelsea"},{"name":"Coventry City","abbrev":"COV","short":"Coventry"},{"name":"Crystal Palace","abbrev":"CRY","short":"C Palace"},{"name":"Everton","abbrev":"EVE","short":"Everton"},{"name":"Fulham","abbrev":"FUL","short":"Fulham"},{"name":"Hull City","abbrev":"HUL","short":"Hull"},{"name":"Ipswich Town","abbrev":"IPS","short":"Ipswich"},{"name":"Leeds United","abbrev":"LEE","short":"Leeds"},{"name":"Liverpool","abbrev":"LIV","short":"Liverpool"},{"name":"Manchester City","abbrev":"MNC","short":"Man City"},{"name":"Manchester United","abbrev":"MAN","short":"Man United"},{"name":"Newcastle United","abbrev":"NEW","short":"Newcastle"},{"name":"Nottingham Forest","abbrev":"NFO","short":"Nottm Forest"},{"name":"Sunderland","abbrev":"SUN","short":"Sunderland"},{"name":"Tottenham Hotspur","abbrev":"TOT","short":"Spurs"}],"deadline":"2026-08-20T23:59:00-0400","locked":false};
 </script>
@@ -290,7 +290,7 @@ escaped text instead of a form. -->
 <div id="picker">
 <div class="picker-row">
 <p><label for="entrant"><strong>Your name</strong></label>
-<input type="text" id="entrant" placeholder="e.g. Allen Brown" autocomplete="name"></p>
+<input type="text" id="entrant" placeholder="e.g. Elliot Anderson" autocomplete="name"></p>
 </div>
 <div class="picker-actions">
 <button type="button" class="btn-secondary" id="btn-shuffle">
@@ -313,8 +313,9 @@ Copy my code
 <span id="copy-status" class="picker-status"></span>
 <textarea id="code-out" readonly rows="3" aria-label="Your pick code"></textarea>
 <p class="note">
-That single line is your whole table. Send it to Allen any way you like
-— text, email, whatever. Nothing is submitted from this page.
+That single line is your whole table. Send it to the Commissioner any
+way you like — text, email, whatever. <strong>Nothing is submitted from
+this page</strong>.
 </p>
 </div>
 </div>
@@ -495,7 +496,7 @@ That single line is your whole table. Send it to Allen any way you like
       return;
     }
     var done = function () {
-      copyEl.textContent = "Copied — now send it to Allen.";
+      copyEl.textContent = "Copied — now send it to the Commissioner";
       setTimeout(function () { copyEl.textContent = ""; }, 4000);
     };
     if (navigator.clipboard && window.isSecureContext) {
@@ -527,8 +528,8 @@ That single line is your whole table. Send it to Allen any way you like
 Everything here happens in your browser — your draft never leaves this
 device until you send the code yourself. The page stops accepting
 changes after the deadline, but that check uses your device’s clock, so
-the entry that actually counts is the one Allen has in hand when the
-table is frozen.
+the entry that actually counts is the one the Commisioner has in
+metaphorical hands when the table is frozen.
 </p>
 
 

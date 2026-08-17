@@ -1,5 +1,5 @@
 ---
-title: "EPL Table Battle"
+title: "EPL Table Battle Royale"
 ---
 
 ```{r, child="_setup.Rmd"}
@@ -9,9 +9,9 @@ title: "EPL Table Battle"
 cat(as.character(lock_banner()))
 ```
 
-`r nrow(PLAYERS)` people wrote down the order they think the
-`r CONFIG$season_label` Premier League will finish in.
-`r if (is_locked()) "Their tables are sealed. The league now spends nine months telling them how wrong they were." else "Once the deadline passes their tables are sealed, and the league spends nine months telling them how wrong they were."`
+`r nrow(PLAYERS)` friends are predicting the order of the
+`r CONFIG$season_label` Premier League table.
+`r if (is_locked()) "Tables are fixed. The league now spends nine months telling them how wrong they were." else "Once the deadline passes their tables are fixed, and the league spends nine months telling them how wrong they were."`
 
 ---
 

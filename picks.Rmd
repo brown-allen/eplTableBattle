@@ -12,7 +12,7 @@ cat(as.character(lock_banner()))
 Drag the clubs into the order you think they will finish, or nudge them with the
 arrows. Your draft saves in this browser as you go, so you can close the tab and
 come back to it. When the table looks right, hit **Copy my code** at the bottom
-and send that one line to Allen.
+and send that one line to the Commisioner.
 
 ```{r inject, results='asis'}
 # The club list and the deadline come from the same files the rest of the site
@@ -34,7 +34,7 @@ escaped text instead of a form. -->
 <div id="picker">
 <div class="picker-row">
 <label for="entrant"><strong>Your name</strong></label>
-<input type="text" id="entrant" placeholder="e.g. Allen Brown" autocomplete="name">
+<input type="text" id="entrant" placeholder="e.g. Elliot Anderson" autocomplete="name">
 </div>
 <div class="picker-actions">
 <button type="button" class="btn-secondary" id="btn-shuffle">Shuffle</button>
@@ -48,8 +48,8 @@ escaped text instead of a form. -->
 <span class="picker-status" id="copy-status"></span>
 <textarea id="code-out" readonly rows="3" aria-label="Your pick code"></textarea>
 <p class="note">
-That single line is your whole table. Send it to Allen any way you like — text,
-email, whatever. Nothing is submitted from this page.
+That single line is your whole table. Send it to the Commissioner any way you like — text,
+email, whatever. **Nothing is submitted from this page**.
 </p>
 </div>
 </div>
@@ -231,7 +231,7 @@ email, whatever. Nothing is submitted from this page.
       return;
     }
     var done = function () {
-      copyEl.textContent = "Copied — now send it to Allen.";
+      copyEl.textContent = "Copied — now send it to the Commissioner";
       setTimeout(function () { copyEl.textContent = ""; }, 4000);
     };
     if (navigator.clipboard && window.isSecureContext) {
@@ -264,5 +264,5 @@ email, whatever. Nothing is submitted from this page.
 Everything here happens in your browser — your draft never leaves this device
 until you send the code yourself. The page stops accepting changes after the
 deadline, but that check uses your device's clock, so the entry that actually
-counts is the one Allen has in hand when the table is frozen.
+counts is the one the Commisioner has in metaphorical hands when the table is frozen.
 </p>
