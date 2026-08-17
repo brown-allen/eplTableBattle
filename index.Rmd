@@ -17,15 +17,19 @@ cat(as.character(lock_banner()))
 
 ## Leaderboard
 
+```{r scoring-banner, results='asis'}
+cat(as.character(scoring_banner(RES)))
+```
+
 ```{r leaderboard}
 render_leaderboard(RES)
 ```
 
 ```{r leaderboard-note, results='asis'}
 if (!SEASON_STARTED) {
-  cat("<p class='note'>No matches played yet — the table below is alphabetical",
-      "by default, so every score here is a placeholder. It starts meaning",
-      "something on the opening weekend.</p>")
+  cat("<p class='note'>No matches played yet — the league table is alphabetical",
+      "until the first results land, so the columns below describe nothing",
+      "meaningful so far.</p>")
 }
 cat("<p class='note'>", describe_method(), "</p>")
 ```

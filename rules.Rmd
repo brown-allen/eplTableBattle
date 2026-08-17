@@ -33,6 +33,58 @@ cat(describe_method())
 Ties are broken by (1) more exact positions called, then (2) a smaller worst
 single miss.
 
+### When scoring opens
+
+Every total reads **0 until `r fmt_when(CONFIG$scoring_start)`**, however the
+league table looks before then.
+`r if (scoring_active()) "That moment has passed, so points are live." else "That moment has not arrived yet."`
+
+## Bonuses
+
+Bonuses are awarded **on top of** the per-club points, and only in the final
+week of the season — from **`r fmt_when(CONFIG$bonus_start)`**.
+`r if (bonuses_active()) "They are currently included in every total." else "They are not in play yet, so totals on the front page are per-club points only."`
+
+```{r bonus-table}
+tibble::tibble(
+  Bonus = c("Champion",
+            "Relegated three",
+            "Champions League places",
+            "Relegation places"),
+  Award = c(sprintf("+%d", CONFIG$bonus_champion),
+            sprintf("+%d", CONFIG$bonus_relegation_set),
+            sprintf("+%d each", CONFIG$bonus_ucl_each),
+            sprintf("+%d each", CONFIG$bonus_relegation_each)),
+  Maximum = c(CONFIG$bonus_champion,
+              CONFIG$bonus_relegation_set,
+              CONFIG$bonus_ucl_each * CONFIG$ucl_places,
+              CONFIG$bonus_relegation_each * CONFIG$relegation_places),
+  `What it takes` = c(
+    "You put the eventual champion 1st.",
+    sprintf("The three clubs you placed %d–%d are exactly the three that go down, in any order.",
+            nrow(TEAMS) - CONFIG$relegation_places + 1, nrow(TEAMS)),
+    sprintf("For each club you placed in the top %d that finishes in the top %d.",
+            CONFIG$ucl_places, CONFIG$ucl_places),
+    sprintf("For each club you placed in the bottom %d that finishes in the bottom %d.",
+            CONFIG$relegation_places, CONFIG$relegation_places))
+) |>
+  knitr::kable(align = c("l", "c", "c", "l")) |>
+  kableExtra::kable_styling(bootstrap_options = c("striped"), full_width = TRUE)
+```
+
+Maximum possible bonus:
+**+`r CONFIG$bonus_champion + CONFIG$bonus_relegation_set + CONFIG$bonus_ucl_each * CONFIG$ucl_places + CONFIG$bonus_relegation_each * CONFIG$relegation_places`**,
+for a perfect-table ceiling of
+**`r max_club_points() * nrow(TEAMS) + CONFIG$bonus_champion + CONFIG$bonus_relegation_set + CONFIG$bonus_ucl_each * CONFIG$ucl_places + CONFIG$bonus_relegation_each * CONFIG$relegation_places`**.
+
+The bonuses stack deliberately. Calling the champion correctly earns the
++`r CONFIG$bonus_champion` champion bonus *and* one Champions League place point,
+so it is worth +`r CONFIG$bonus_champion + CONFIG$bonus_ucl_each` in total.
+Naming all three relegated clubs earns the
++`r CONFIG$bonus_relegation_set` set bonus *and*
+`r CONFIG$relegation_places` relegation place points, so
++`r CONFIG$bonus_relegation_set + CONFIG$bonus_relegation_each * CONFIG$relegation_places`.
+
 ### Worked example
 
 ```{r example}

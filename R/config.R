@@ -35,12 +35,28 @@ CONFIG <- list(
   banded_points  = c("0" = 10, "1" = 6, "2" = 4, "3" = 2, "4" = 1),
   banded_floor   = 0,
 
-  ## Bonus points for calling the champion / the relegated three exactly right.
-  ## Both are 0 so that totals are the basic per-club scores and nothing else.
-  ## Set them when the bonus rules are decided; the leaderboard grows a Bonus
-  ## column automatically as soon as either is non-zero.
-  bonus_champion   = 0,
-  bonus_relegation = 0,
+  ## When scoring starts. Everyone shows 0 until this instant, however the
+  ## league table looks. 5pm Eastern on Monday 24 August 2026.
+  scoring_start  = as.POSIXct("2026-08-24 17:00", tz = "America/New_York"),
+
+  ## When bonuses start counting -- the final week of the season.
+  ##
+  ## NOTE: 20 May 2027 is a THURSDAY. If you meant the Saturday, that is
+  ## 22 May 2027. More importantly the 2026-27 season's final round is
+  ## expected on Sunday 23 May 2027, and bonuses computed before the last
+  ## matchday would be scored against an unfinished table -- the champion and
+  ## the relegated three can still change. Push this to 24 May 2027 to be safe.
+  bonus_start    = as.POSIXct("2027-05-20 00:00", tz = "America/New_York"),
+
+  ## Bonus values.
+  bonus_champion        = 5,  # predicted the champion exactly
+  bonus_relegation_set  = 5,  # named the relegated three, any order
+  bonus_ucl_each        = 1,  # per club correctly placed inside the top 4
+  bonus_relegation_each = 1,  # per club correctly placed inside the bottom 3
+
+  ## How many places count as "Champions League" and "relegation".
+  ucl_places        = 4,
+  relegation_places = 3,
 
   ## Presentation ----------------------------------------------------------
   site_title     = "EPL Table Battle",
@@ -62,6 +78,12 @@ has_fd_key <- function() nzchar(fd_api_key())
 ## Derived -----------------------------------------------------------------
 ## TRUE once predictions can no longer be changed.
 is_locked <- function(now = Sys.time()) now >= CONFIG$lock_time
+
+## TRUE once per-club points count. Before this, every total reads 0.
+scoring_active <- function(now = Sys.time()) now >= CONFIG$scoring_start
+
+## TRUE once end-of-season bonuses are added on top.
+bonuses_active <- function(now = Sys.time()) now >= CONFIG$bonus_start
 
 ## "lower score wins" vs "higher score wins", derived from the method.
 score_direction <- function(method = CONFIG$scoring_method) {

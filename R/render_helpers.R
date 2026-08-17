@@ -67,24 +67,56 @@ render_leaderboard <- function(res) {
     else sprintf("highest wins — %d is a perfect table", cap * nrow(LIVE))
   }
 
-  out <- lb |>
-    transmute(
-      Rank = rank,
-      Entrant = display_name,
-      Score = total_score,
-      `Exact` = exact_hits,
-      `±1` = within_one,
-      `±3` = within_three,
-      `Worst miss` = worst_miss
-    )
-  if (any(lb$bonus != 0)) out$Bonus <- lb$bonus
+  out <- tibble(Rank = lb$rank, Entrant = lb$display_name)
 
-  out |>
+  ## Once bonuses are live the total needs breaking out, otherwise a single
+  ## Score column is all there is to say.
+  if (isTRUE(res$bonuses_active)) {
+    out$Points <- lb$base_score
+    out$Bonus  <- lb$bonus
+    out$Total  <- lb$total_score
+  } else {
+    out$Score <- lb$total_score
+  }
+
+  out$Exact        <- lb$exact_hits
+  out$`±1`         <- lb$within_one
+  out$`±3`         <- lb$within_three
+  out$`Worst miss` <- lb$worst_miss
+
+  ## The banner above already explains a closed scoring window, so the caption
+  ## only carries the scoring direction once points actually count.
+  cap <- if (!isTRUE(res$scoring_active)) NULL else paste0("Score = ", arrow)
+
+  k <- out |>
     kbl(align = c("r", "l", rep("r", ncol(out) - 2)), escape = FALSE,
-        caption = paste0("Score = ", arrow)) |>
+        caption = cap) |>
     kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) |>
-    column_spec(2, bold = TRUE) |>
-    row_spec(which(lb$rank == 1), background = "#fff6d6")
+    column_spec(2, bold = TRUE)
+
+  ## Highlighting a leader is meaningless while everyone is on 0.
+  if (isTRUE(res$scoring_active)) {
+    k <- row_spec(k, which(lb$rank == 1), background = "#fff6d6")
+  }
+  k
+}
+
+#' Banner explaining what is and is not being counted yet.
+scoring_banner <- function(res, now = Sys.time()) {
+  if (!isTRUE(res$scoring_active)) {
+    return(div(class = "banner banner-open",
+      strong("Scoring opens "), fmt_when(CONFIG$scoring_start), ". ",
+      "Until then every total below reads 0, whatever the league table does."))
+  }
+  if (!isTRUE(res$bonuses_active)) {
+    return(div(class = "banner banner-locked",
+      strong("Bonuses are not in play yet. "),
+      "Totals below are per-club points only. The champion, relegation and ",
+      "top-four bonuses are added in the final week, from ",
+      fmt_when(CONFIG$bonus_start), "."))
+  }
+  div(class = "banner banner-locked",
+      strong("Final week. "), "End-of-season bonuses are now included in every total.")
 }
 
 #' One entrant's frozen table next to where those clubs actually sit.

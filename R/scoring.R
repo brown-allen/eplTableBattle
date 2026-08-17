@@ -56,28 +56,62 @@ max_club_points <- function(method = CONFIG$scoring_method) {
   as.integer(SCORERS[[method]](probe))
 }
 
-## Bonuses apply only to "higher is better" rules; for difference-based rules
+## --- bonuses ---------------------------------------------------------------
+## Four separate awards, all added on top of the per-club points and only in
+## the final week of the season:
+##
+##   champion         +5  predicted the title winner exactly
+##   relegation_set   +5  named the relegated three, in any order
+##   ucl_spots        +1  per club placed inside the top 4 that finishes there
+##   relegation_spots +1  per club placed inside the bottom 3 that finishes there
+##
+## They deliberately overlap, as specified: a correct champion also earns a
+## top-4 spot point, and naming all three relegated clubs earns both the set
+## bonus and three spot points.
+##
+## Bonuses apply only to "higher is better" rules; on a difference-based rule
 ## they would perversely add to a player's (bad) total, so they are skipped.
-apply_bonuses <- function(df, method = CONFIG$scoring_method) {
-  if (score_direction(method) != "higher") return(0)
+BONUS_COMPONENTS <- c("champion", "relegation_set", "ucl_spots", "relegation_spots")
 
-  bonus <- 0
-  champ_ok <- with(df, any(predicted == 1 & actual == 1))
-  if (isTRUE(champ_ok)) bonus <- bonus + CONFIG$bonus_champion
+bonus_breakdown <- function(df, method = CONFIG$scoring_method,
+                            now = Sys.time()) {
+  z <- setNames(numeric(length(BONUS_COMPONENTS)), BONUS_COMPONENTS)
+  if (score_direction(method) != "higher") return(z)
+  if (!bonuses_active(now)) return(z)
 
-  n <- nrow(df)
-  bottom_pred   <- df$team[df$predicted > n - 3]
-  bottom_actual <- df$team[df$actual    > n - 3]
-  if (setequal(bottom_pred, bottom_actual)) bonus <- bonus + CONFIG$bonus_relegation
+  n     <- nrow(df)
+  top_n <- CONFIG$ucl_places
+  bot_n <- CONFIG$relegation_places
 
-  bonus
+  ## 1. the champion
+  if (any(df$predicted == 1 & df$actual == 1)) {
+    z[["champion"]] <- CONFIG$bonus_champion
+  }
+
+  ## 2. the relegated three as a set, order irrelevant
+  bottom_pred   <- df$team[df$predicted > n - bot_n]
+  bottom_actual <- df$team[df$actual    > n - bot_n]
+  if (setequal(bottom_pred, bottom_actual)) {
+    z[["relegation_set"]] <- CONFIG$bonus_relegation_set
+  }
+
+  ## 3. one per club correctly placed inside the top 4 (max +4)
+  z[["ucl_spots"]] <- sum(df$predicted <= top_n & df$actual <= top_n) *
+    CONFIG$bonus_ucl_each
+
+  ## 4. one per club correctly placed inside the bottom 3 (max +3)
+  z[["relegation_spots"]] <- sum(df$predicted > n - bot_n & df$actual > n - bot_n) *
+    CONFIG$bonus_relegation_each
+
+  z
 }
 
 ## --- driver ----------------------------------------------------------------
 
 #' Join one player's prediction to the live table and score it.
 #' Returns a tibble with one row per club, ordered by predicted position.
-score_player <- function(prediction, live, method = CONFIG$scoring_method) {
+score_player <- function(prediction, live, method = CONFIG$scoring_method,
+                         now = Sys.time()) {
   stopifnot(method %in% names(SCORERS))
 
   df <- prediction |>
@@ -96,7 +130,11 @@ score_player <- function(prediction, live, method = CONFIG$scoring_method) {
       off   = abs(diff),
       exact = off == 0
     )
-  df$score <- SCORERS[[method]](df)
+  ## `earned` is what the prediction is worth on the current table; `score` is
+  ## what actually counts, which is nothing until scoring opens. Keeping both
+  ## lets the site show the shape of a table without awarding points early.
+  df$earned <- SCORERS[[method]](df)
+  df$score  <- if (scoring_active(now)) df$earned else 0
   df
 }
 
@@ -104,12 +142,13 @@ score_player <- function(prediction, live, method = CONFIG$scoring_method) {
 #'   $detail      long tibble, one row per player x club
 #'   $leaderboard one row per player, ranked
 score_all <- function(predictions, live, players = NULL,
-                      method = CONFIG$scoring_method) {
+                      method = CONFIG$scoring_method,
+                      now = Sys.time()) {
 
   who <- unique(predictions$player)
 
   detail <- lapply(who, function(p) {
-    score_player(filter(predictions, player == p), live, method) |>
+    score_player(filter(predictions, player == p), live, method, now) |>
       mutate(player = p, .before = 1)
   }) |> bind_rows()
 
@@ -126,12 +165,17 @@ score_all <- function(predictions, live, players = NULL,
       .groups = "drop"
     )
 
-  ## bonuses (no-ops for difference-based rules)
-  bonuses <- vapply(who, function(p) {
-    apply_bonuses(filter(detail, player == p), method)
-  }, numeric(1))
-  leaderboard$bonus <- unname(bonuses[leaderboard$player])
-  leaderboard$total_score <- leaderboard$total_score + leaderboard$bonus
+  ## bonuses: zero until the final week, and always zero on a "lower wins" rule
+  bmat <- vapply(who, function(p) {
+    bonus_breakdown(filter(detail, player == p), method, now)
+  }, numeric(length(BONUS_COMPONENTS)))
+  bonuses <- as.data.frame(t(bmat))
+  bonuses$player <- colnames(bmat)
+
+  leaderboard <- left_join(leaderboard, bonuses, by = "player")
+  leaderboard$bonus <- rowSums(leaderboard[, BONUS_COMPONENTS, drop = FALSE])
+  leaderboard$base_score <- leaderboard$total_score
+  leaderboard$total_score <- leaderboard$base_score + leaderboard$bonus
 
   ## Rank. Tiebreak: more exact hits wins, then fewer big misses.
   leaderboard <- leaderboard |>
@@ -152,7 +196,9 @@ score_all <- function(predictions, live, players = NULL,
   }
 
   list(detail = detail, leaderboard = leaderboard, method = method,
-       direction = dir)
+       direction = dir,
+       scoring_active = scoring_active(now),
+       bonuses_active = bonuses_active(now))
 }
 
 #' Human-readable one-liner describing the active rule, for the site.
