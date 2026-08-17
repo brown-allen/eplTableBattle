@@ -28,10 +28,12 @@ this was built on.
 |---|---|
 | `index.Rmd` | Leaderboard, live Premier League table, all entries side by side |
 | `predictions.Rmd` | One section per entrant: their sealed table vs. reality |
+| `picks.Rmd` | Drag-to-reorder picker entrants use to build their table |
 | `rules.Rmd` | Deadline, scoring rule, worked example, club list |
 | `_setup.Rmd` | Shared setup chunk sourced by all three pages |
 | `_player_section.Rmd` | Child template rendered once per entrant |
 | `R/config.R` | **Every knob worth turning lives here** |
+| `R/ingest.R` | Turning pick codes back into `predictions.csv` |
 | `R/scoring.R` | The scoring rules |
 | `R/fetch_table.R` | ESPN standings fetch + cache |
 | `R/predictions.R` | Reading, validating and freezing entries |
@@ -70,6 +72,42 @@ allen,Allen Brown,2026-08-19 21:14:00
 The repo currently ships six placeholder entrants (`player1`…`player6`) with
 randomly jittered tables, purely so the site renders. Replace both files and
 rebuild.
+
+## Collecting entries with the picker
+
+`picks.Rmd` builds a page where an entrant drags the 20 clubs into order (or
+nudges them with arrows, which is what actually works on a phone). Their draft
+saves to their own browser as they go, so they can close the tab and come back.
+Hitting **Copy my code** puts one line on their clipboard:
+
+```
+Allen Brown:TOT,MAN,COV,AVL,SUN,BOU,HUL,BHA,IPS,CHE,...
+```
+
+GitHub Pages is static hosting — there is no server, so the page cannot submit
+anything anywhere. Entrants send you that line however you already talk to them.
+Collect the six of them in a text file, one per line:
+
+```bash
+Rscript -e 'source("R/ingest.R"); ingest_codes("data/codes.txt")'
+```
+
+That validates every code, rewrites `data/predictions.csv`, and updates
+`data/players.csv` — the name before the colon is carried through verbatim, so
+`Sam O'Neill` stays `Sam O'Neill` rather than becoming a squashed key. Re-running
+it with a corrected code for one person replaces just that column and leaves
+everyone else alone. Bad codes fail loudly and name the problem: wrong number of
+clubs, a club listed twice, an unrecognised abbreviation.
+
+Submission times are stamped at ingest, not at the moment someone sent their
+code; edit `players.csv` if you want them accurate.
+
+If you later want entries to arrive without you copying anything, the picker
+already emits the right format — point a Google Form at it and have `build.R`
+read the published sheet CSV.
+
+The picker greys itself out after the deadline, but that check uses the
+*entrant's* device clock. Real enforcement stays in `build.R`, which uses yours.
 
 ## The freeze
 

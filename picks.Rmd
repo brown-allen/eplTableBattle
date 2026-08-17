@@ -1,0 +1,268 @@
+---
+title: "Make Your Picks"
+---
+
+```{r, child="_setup.Rmd"}
+```
+
+```{r banner, results='asis'}
+cat(as.character(lock_banner()))
+```
+
+Drag the clubs into the order you think they will finish, or nudge them with the
+arrows. Your draft saves in this browser as you go, so you can close the tab and
+come back to it. When the table looks right, hit **Copy my code** at the bottom
+and send that one line to Allen.
+
+```{r inject, results='asis'}
+# The club list and the deadline come from the same files the rest of the site
+# uses, so the picker can never drift out of sync with data/teams.csv.
+payload <- list(
+  teams = lapply(seq_len(nrow(TEAMS)), function(i) {
+    list(name = TEAMS$team[i], abbrev = TEAMS$abbrev[i], short = TEAMS$short_name[i])
+  }),
+  deadline = format(CONFIG$lock_time, "%Y-%m-%dT%H:%M:%S%z"),
+  locked = is_locked()
+)
+cat("<script>\nconst PICKER_DATA = ",
+    jsonlite::toJSON(payload, auto_unbox = TRUE), ";\n</script>\n", sep = "")
+```
+
+<!-- NOTE: this block must stay flush-left. Indenting raw HTML by four spaces
+makes pandoc treat it as a markdown code block and render the controls as
+escaped text instead of a form. -->
+<div id="picker">
+<div class="picker-row">
+<label for="entrant"><strong>Your name</strong></label>
+<input type="text" id="entrant" placeholder="e.g. Allen Brown" autocomplete="name">
+</div>
+<div class="picker-actions">
+<button type="button" class="btn-secondary" id="btn-shuffle">Shuffle</button>
+<button type="button" class="btn-secondary" id="btn-alpha">A–Z</button>
+<button type="button" class="btn-secondary" id="btn-reset">Start over</button>
+<span class="picker-status" id="save-status"></span>
+</div>
+<ol id="club-list" class="club-list"></ol>
+<div class="picker-submit">
+<button type="button" class="btn-primary" id="btn-copy">Copy my code</button>
+<span class="picker-status" id="copy-status"></span>
+<textarea id="code-out" readonly rows="3" aria-label="Your pick code"></textarea>
+<p class="note">
+That single line is your whole table. Send it to Allen any way you like — text,
+email, whatever. Nothing is submitted from this page.
+</p>
+</div>
+</div>
+
+<script>
+(function () {
+  var TEAMS    = PICKER_DATA.teams;
+  var DEADLINE = new Date(PICKER_DATA.deadline);
+  var STORE    = "eplTableBattle.draft.v1";
+
+  var listEl   = document.getElementById("club-list");
+  var nameEl   = document.getElementById("entrant");
+  var codeEl   = document.getElementById("code-out");
+  var saveEl   = document.getElementById("save-status");
+  var copyEl   = document.getElementById("copy-status");
+
+  // Order is held as an array of abbreviations; TEAMS is the lookup.
+  var order = TEAMS.map(function (t) { return t.abbrev; });
+  var byAbbrev = {};
+  TEAMS.forEach(function (t) { byAbbrev[t.abbrev] = t; });
+
+  function locked() { return new Date() >= DEADLINE; }
+
+  /* ---- persistence ---------------------------------------------------- */
+
+  function save() {
+    try {
+      localStorage.setItem(STORE, JSON.stringify({
+        name: nameEl.value, order: order
+      }));
+      saveEl.textContent = "Draft saved";
+      clearTimeout(save._t);
+      save._t = setTimeout(function () { saveEl.textContent = ""; }, 1600);
+    } catch (e) {
+      saveEl.textContent = "Could not save a draft in this browser";
+    }
+  }
+
+  function restore() {
+    try {
+      var raw = localStorage.getItem(STORE);
+      if (!raw) return;
+      var d = JSON.parse(raw);
+      if (d.name) nameEl.value = d.name;
+      // Only trust a stored order that is still exactly the 20 current clubs.
+      if (Array.isArray(d.order) && d.order.length === TEAMS.length &&
+          d.order.every(function (a) { return byAbbrev[a]; }) &&
+          new Set(d.order).size === TEAMS.length) {
+        order = d.order;
+      }
+    } catch (e) { /* corrupt draft: fall back to the default order */ }
+  }
+
+  /* ---- rendering ------------------------------------------------------ */
+
+  function render() {
+    listEl.innerHTML = "";
+    order.forEach(function (abbrev, i) {
+      var t  = byAbbrev[abbrev];
+      var li = document.createElement("li");
+      li.className = "club-item";
+      li.draggable = !locked();
+      li.dataset.index = i;
+
+      li.innerHTML =
+        '<span class="club-pos">' + (i + 1) + '</span>' +
+        '<span class="club-grip" aria-hidden="true">⠿</span>' +
+        '<span class="club-name">' + t.name + '</span>' +
+        '<span class="club-nudge">' +
+          '<button type="button" class="nudge" data-dir="-1" ' +
+            (i === 0 ? "disabled" : "") + ' aria-label="Move ' + t.name + ' up">▲</button>' +
+          '<button type="button" class="nudge" data-dir="1" ' +
+            (i === order.length - 1 ? "disabled" : "") +
+            ' aria-label="Move ' + t.name + ' down">▼</button>' +
+        '</span>';
+
+      listEl.appendChild(li);
+    });
+    updateCode();
+  }
+
+  function move(from, to) {
+    if (to < 0 || to >= order.length) return;
+    var item = order.splice(from, 1)[0];
+    order.splice(to, 0, item);
+    render();
+    save();
+  }
+
+  /* ---- the code ------------------------------------------------------- */
+
+  function slug(s) {
+    return (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  }
+
+  function updateCode() {
+    // The name is carried through verbatim so the site can show "Sam O'Neill"
+    // rather than a squashed key; the decoder derives the key itself.
+    var typed = (nameEl.value || "").trim().replace(/[:\n]+/g, " ");
+    codeEl.value = slug(typed)
+      ? typed + ":" + order.join(",")
+      : "(type your name above to generate your code)";
+  }
+
+  /* ---- events --------------------------------------------------------- */
+
+  listEl.addEventListener("click", function (e) {
+    var btn = e.target.closest(".nudge");
+    if (!btn || locked()) return;
+    var i = +btn.closest(".club-item").dataset.index;
+    move(i, i + (+btn.dataset.dir));
+  });
+
+  var dragFrom = null;
+
+  listEl.addEventListener("dragstart", function (e) {
+    var li = e.target.closest(".club-item");
+    if (!li || locked()) return;
+    dragFrom = +li.dataset.index;
+    li.classList.add("dragging");
+    e.dataTransfer.effectAllowed = "move";
+    // Firefox will not start a drag without payload.
+    e.dataTransfer.setData("text/plain", String(dragFrom));
+  });
+
+  listEl.addEventListener("dragover", function (e) {
+    if (dragFrom === null) return;
+    e.preventDefault();
+    var li = e.target.closest(".club-item");
+    if (!li) return;
+    var over = +li.dataset.index;
+    if (over !== dragFrom) {
+      var item = order.splice(dragFrom, 1)[0];
+      order.splice(over, 0, item);
+      dragFrom = over;
+      render();
+      listEl.children[over].classList.add("dragging");
+    }
+  });
+
+  listEl.addEventListener("dragend", function () {
+    dragFrom = null;
+    render();
+    save();
+  });
+
+  nameEl.addEventListener("input", function () { updateCode(); save(); });
+
+  document.getElementById("btn-shuffle").addEventListener("click", function () {
+    if (locked()) return;
+    for (var i = order.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = order[i]; order[i] = order[j]; order[j] = tmp;
+    }
+    render(); save();
+  });
+
+  document.getElementById("btn-alpha").addEventListener("click", function () {
+    if (locked()) return;
+    order.sort(function (a, b) {
+      return byAbbrev[a].name.localeCompare(byAbbrev[b].name);
+    });
+    render(); save();
+  });
+
+  document.getElementById("btn-reset").addEventListener("click", function () {
+    if (locked()) return;
+    if (!confirm("Clear your draft and start from the default order?")) return;
+    order = TEAMS.map(function (t) { return t.abbrev; });
+    nameEl.value = "";
+    try { localStorage.removeItem(STORE); } catch (e) {}
+    render();
+  });
+
+  document.getElementById("btn-copy").addEventListener("click", function () {
+    if (!slug(nameEl.value)) {
+      copyEl.textContent = "Add your name first.";
+      nameEl.focus();
+      return;
+    }
+    var done = function () {
+      copyEl.textContent = "Copied — now send it to Allen.";
+      setTimeout(function () { copyEl.textContent = ""; }, 4000);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(codeEl.value).then(done, function () {
+        codeEl.select(); copyEl.textContent = "Press ⌘C to copy.";
+      });
+    } else {
+      codeEl.select();
+      try { document.execCommand("copy"); done(); }
+      catch (e) { copyEl.textContent = "Press ⌘C to copy."; }
+    }
+  });
+
+  /* ---- go ------------------------------------------------------------- */
+
+  restore();
+  render();
+
+  if (locked()) {
+    document.getElementById("picker").classList.add("is-locked");
+    ["btn-shuffle", "btn-alpha", "btn-reset", "btn-copy"].forEach(function (id) {
+      document.getElementById(id).disabled = true;
+    });
+    nameEl.disabled = true;
+  }
+})();
+</script>
+
+<p class="note">
+Everything here happens in your browser — your draft never leaves this device
+until you send the code yourself. The page stops accepting changes after the
+deadline, but that check uses your device's clock, so the entry that actually
+counts is the one Allen has in hand when the table is frozen.
+</p>

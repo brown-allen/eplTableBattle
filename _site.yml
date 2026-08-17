@@ -16,6 +16,8 @@ navbar:
     href: index.html
   - text: "The Predictions"
     href: predictions.html
+  - text: "Make Your Picks"
+    href: picks.html
   - text: "Rules"
     href: rules.html
 output:
