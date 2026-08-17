@@ -1,0 +1,27 @@
+name: "eplTableBattle"
+output_dir: "docs"
+# Source, data and tooling stay out of the published site; only the rendered
+# pages plus css/ are copied to docs/.
+exclude:
+  - "R"
+  - "data"
+  - "build.R"
+  - "README.md"
+  - "*.Rproj"
+  - ".gitignore"
+navbar:
+  title: "EPL Table Battle"
+  left:
+  - text: "Standings"
+    href: index.html
+  - text: "The Predictions"
+    href: predictions.html
+  - text: "Rules"
+    href: rules.html
+output:
+  html_document:
+    theme: journal
+    highlight: textmate
+    css: css/style.css
+    self_contained: true
+    toc: false

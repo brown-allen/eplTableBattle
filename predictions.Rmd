@@ -1,0 +1,28 @@
+---
+title: "The Predictions"
+---
+
+```{r, child="_setup.Rmd"}
+```
+
+```{r banner, results='asis'}
+cat(as.character(lock_banner()))
+```
+
+Each table below is exactly as its author submitted it,
+`r if (is_locked()) "sealed at" else "and will be sealed at"`
+**`r fmt_when(CONFIG$lock_time)`**. The *Actual* column is where that club sits
+in the live table right now, and *Off by* is the damage.
+
+```{r sections, results='asis'}
+ordered <- PLAYERS[match(RES$leaderboard$player, PLAYERS$player), ]
+
+chunks <- character(0)
+for (i in seq_len(nrow(ordered))) {
+  .row <- ordered[i, ]
+  knitr::opts_knit$set(unnamed.chunk.label = paste0("player", i))
+  chunks <- c(chunks, knitr::knit_child("_player_section.Rmd",
+                                        envir = environment(), quiet = TRUE))
+}
+cat(chunks, sep = "\n\n---\n\n")
+```

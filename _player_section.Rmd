@@ -1,0 +1,21 @@
+### `r .row$display_name`
+
+```{r}
+.lb <- RES$leaderboard |> dplyr::filter(player == .row$player)
+htmltools::div(
+  class = "playercard",
+  htmltools::span(class = "pill", sprintf("Rank %d of %d", .lb$rank, nrow(RES$leaderboard))),
+  htmltools::span(class = "pill", sprintf("Score %s", format(.lb$total_score))),
+  htmltools::span(class = "pill", sprintf("%d exact", .lb$exact_hits)),
+  htmltools::span(class = "pill", sprintf("worst miss %d places", .lb$worst_miss)),
+  htmltools::span(class = "pill pill-quiet",
+                  sprintf("submitted %s", fmt_when(.row$submitted_at)))
+)
+```
+
+```{r}
+render_player_table(RES, .row$player)
+```
+
+<p class="note">▲ means the club is doing better than `r .row$display_name` predicted; ▼ means worse.</p>
+

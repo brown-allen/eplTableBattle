@@ -1,0 +1,60 @@
+---
+title: "EPL Table Battle"
+---
+
+```{r, child="_setup.Rmd"}
+```
+
+```{r banner, results='asis'}
+cat(as.character(lock_banner()))
+```
+
+`r nrow(PLAYERS)` people wrote down the order they think the
+`r CONFIG$season_label` Premier League will finish in.
+`r if (is_locked()) "Their tables are sealed. The league now spends nine months telling them how wrong they were." else "Once the deadline passes their tables are sealed, and the league spends nine months telling them how wrong they were."`
+
+---
+
+## Leaderboard
+
+```{r leaderboard}
+render_leaderboard(RES)
+```
+
+```{r leaderboard-note, results='asis'}
+if (!SEASON_STARTED) {
+  cat("<p class='note'>No matches played yet — the table below is alphabetical",
+      "by default, so every score here is a placeholder. It starts meaning",
+      "something on the opening weekend.</p>")
+}
+cat("<p class='note'>", describe_method(), "</p>")
+```
+
+---
+
+## Live Premier League table
+
+```{r live-table}
+render_live_table(LIVE)
+```
+
+<p class="note">
+Champions League places shaded green, relegation places shaded red.
+Data from ESPN, last refreshed
+**`r fmt_when(attr(LIVE, "fetched_at"))`**`r if (isTRUE(attr(LIVE, "stale"))) " — the most recent refresh attempt failed, so these numbers may be behind" else ""`.
+</p>
+
+---
+
+## Every entrant, side by side
+
+Rows are predicted finishing positions; each column is one entrant's sealed table.
+
+```{r grid}
+render_comparison_grid(RES, PLAYERS)
+```
+
+<p class="note">
+Full per-entrant breakdowns, including how far off each pick currently is, are on
+the [predictions page](predictions.html).
+</p>

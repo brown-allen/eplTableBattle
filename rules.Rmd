@@ -1,0 +1,78 @@
+---
+title: "Rules"
+---
+
+```{r, child="_setup.Rmd"}
+```
+
+## The competition
+
+Each entrant submits one complete ordering of all `r nrow(TEAMS)` Premier League
+clubs — their guess at the final `r CONFIG$season_label` table, from champion to
+bottom. No partial entries, no ties, every club used exactly once.
+
+## The deadline
+
+Entries `r if (is_locked()) "were due" else "are due"`
+**`r fmt_when(CONFIG$lock_time)`**.
+
+At that instant `data/predictions.csv` is snapshotted to
+`data/predictions_frozen.csv`, and every build after the deadline renders the
+snapshot rather than the working file. If the working file is edited afterwards the build emits a warning and
+ignores the change, so a late edit cannot quietly reach the site.
+
+## Scoring
+
+```{r scoring-desc, results='asis'}
+cat(describe_method())
+```
+
+**Currently active rule:** `` `r CONFIG$scoring_method` `` —
+`r if (score_direction() == "lower") "lowest total wins" else "highest total wins"`.
+
+Ties are broken by (1) more exact positions called, then (2) a smaller worst
+single miss.
+
+### Worked example
+
+```{r example}
+ex <- tibble::tibble(
+  Club = c("Liverpool", "Arsenal", "Everton"),
+  Picked = c(1L, 2L, 12L),
+  Actual = c(1L, 4L, 9L)
+) |> dplyr::mutate(
+  `Off by` = abs(Picked - Actual),
+  Score = SCORERS[[CONFIG$scoring_method]](
+    data.frame(predicted = Picked, actual = Actual)
+  )
+)
+knitr::kable(ex, align = c("l", "r", "r", "r", "r")) |>
+  kableExtra::kable_styling(bootstrap_options = c("striped"), full_width = FALSE)
+```
+
+Across three clubs that entrant would score
+`r sum(SCORERS[[CONFIG$scoring_method]](data.frame(predicted = c(1L,2L,12L), actual = c(1L,4L,9L))))`.
+The real thing runs over all `r nrow(TEAMS)`.
+
+<p class="note">
+The points method is still being finalised. Changing it means editing one line —
+<code>scoring_method</code> in <code>R/config.R</code> — or adding a function to
+<code>SCORERS</code> in <code>R/scoring.R</code>. Every page recalculates from
+whatever is set there; nothing else needs touching.
+</p>
+
+## Data
+
+The live table is pulled from ESPN's public standings endpoint each time the
+site is rebuilt. It is cached to `data/live_table.csv`, so if the fetch fails the
+site still builds from the last good snapshot and says so.
+
+## The clubs
+
+```{r clubs}
+TEAMS |>
+  dplyr::transmute(Club = team, `Also accepted as` = gsub("|", ", ", aliases, fixed = TRUE)) |>
+  knitr::kable(align = c("l", "l")) |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "condensed"),
+                            full_width = TRUE, font_size = 12)
+```

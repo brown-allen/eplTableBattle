@@ -1,0 +1,21 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+source("R/config.R")
+source("R/teams.R")
+source("R/fetch_table.R")
+source("R/scoring.R")
+source("R/predictions.R")
+source("R/render_helpers.R")
+
+TEAMS   <- load_teams()
+PLAYERS <- load_players()
+PREDS   <- load_active_predictions(teams = TEAMS)
+
+# build.R refreshes the cache once per build; the pages read the cache so a
+# three-page render is one API call, not three.
+LIVE    <- get_live_table(refresh = FALSE)
+RES     <- score_all(PREDS, LIVE, players = PLAYERS)
+
+SEASON_STARTED <- sum(LIVE$played) > 0
+```

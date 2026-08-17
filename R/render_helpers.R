@@ -1,0 +1,123 @@
+# ---------------------------------------------------------------------------
+# render_helpers.R -- shared table/format helpers for the .Rmd pages
+# ---------------------------------------------------------------------------
+
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(knitr)
+  library(kableExtra)
+  library(htmltools)
+})
+
+## Colour a cell by how far off a pick was. Green = spot on, red = way out.
+.miss_colour <- function(off) {
+  off <- pmin(off, 8)
+  ifelse(off == 0, "#1a7f37",
+  ifelse(off <= 2, "#3f8f5c",
+  ifelse(off <= 4, "#b08900",
+  ifelse(off <= 6, "#c8642a", "#b42318"))))
+}
+
+fmt_when <- function(x, tz = CONFIG$timezone) {
+  if (is.null(x) || all(is.na(x))) return("unknown")
+  format(as.POSIXct(x), "%A %d %B %Y, %H:%M %Z", tz = tz)
+}
+
+#' Countdown / lock banner shown at the top of the site.
+lock_banner <- function(now = Sys.time()) {
+  deadline <- CONFIG$lock_time
+  if (now >= deadline) {
+    div(class = "banner banner-locked",
+        strong("Predictions are locked."),
+        sprintf(" Entries closed %s. Nothing below can change now — only the league can.",
+                fmt_when(deadline)))
+  } else {
+    left <- difftime(deadline, now, units = "hours")
+    div(class = "banner banner-open",
+        strong("Predictions are still open."),
+        sprintf(" They freeze at %s — %.0f hours from now.",
+                fmt_when(deadline), as.numeric(left)))
+  }
+}
+
+#' The live Premier League table.
+render_live_table <- function(live) {
+  live |>
+    transmute(
+      `#` = position, Club = team, Pl = played, W = won, D = drawn, L = lost,
+      GF = gf, GA = ga, GD = ifelse(gd > 0, paste0("+", gd), as.character(gd)),
+      Pts = points
+    ) |>
+    kbl(align = c("r", "l", rep("r", 8)), escape = FALSE) |>
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                  full_width = FALSE) |>
+    row_spec(1:4, background = "#eaf5ee") |>       # Champions League places
+    row_spec(nrow(live) - 2:0, background = "#fdecea") |>  # relegation
+    column_spec(2, bold = TRUE)
+}
+
+#' The leaderboard.
+render_leaderboard <- function(res) {
+  lb <- res$leaderboard
+  arrow <- if (res$direction == "lower") "lowest wins" else "highest wins"
+
+  out <- lb |>
+    transmute(
+      Rank = rank,
+      Entrant = display_name,
+      Score = total_score,
+      `Exact` = exact_hits,
+      `±1` = within_one,
+      `±3` = within_three,
+      `Worst miss` = worst_miss
+    )
+  if (any(lb$bonus != 0)) out$Bonus <- lb$bonus
+
+  out |>
+    kbl(align = c("r", "l", rep("r", ncol(out) - 2)), escape = FALSE,
+        caption = paste0("Score = ", arrow)) |>
+    kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) |>
+    column_spec(2, bold = TRUE) |>
+    row_spec(which(lb$rank == 1), background = "#fff6d6")
+}
+
+#' One entrant's frozen table next to where those clubs actually sit.
+render_player_table <- function(res, player_key) {
+  d <- res$detail |> filter(player == player_key) |> arrange(predicted)
+
+  moved <- ifelse(
+    d$diff == 0, "–",
+    sprintf("%s%d", ifelse(d$diff > 0, "▼", "▲"), abs(d$diff))
+  )
+
+  tibble(
+    `Picked` = d$predicted,
+    Club = d$team,
+    `Actual` = d$actual,
+    `Off by` = cell_spec(moved, color = .miss_colour(d$off), bold = TRUE),
+    `Score` = d$score
+  ) |>
+    kbl(align = c("r", "l", "r", "r", "r"), escape = FALSE) |>
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                  full_width = FALSE) |>
+    column_spec(2, bold = TRUE)
+}
+
+#' Small "who is where" grid: rows = actual position, columns = entrant.
+render_comparison_grid <- function(res, players) {
+  wide <- res$detail |>
+    select(player, predicted, team) |>
+    tidyr::pivot_wider(names_from = player, values_from = team) |>
+    arrange(predicted) |>
+    rename(`#` = predicted)
+
+  ## Use display names for the column headers.
+  key_to_name <- setNames(players$display_name, players$player)
+  names(wide)[-1] <- unname(key_to_name[names(wide)[-1]])
+
+  wide |>
+    kbl(escape = FALSE, align = c("r", rep("l", ncol(wide) - 1))) |>
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                  full_width = TRUE, font_size = 12) |>
+    scroll_box(width = "100%")
+}
