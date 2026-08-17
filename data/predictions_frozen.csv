@@ -1,21 +1,21 @@
 position,player1,player2,player3,player4,player5,player6
-1,Liverpool,Liverpool,Liverpool,Manchester City,Chelsea,Liverpool
-2,Arsenal,Manchester City,Arsenal,Tottenham Hotspur,Arsenal,Aston Villa
-3,Aston Villa,Aston Villa,Tottenham Hotspur,Crystal Palace,Aston Villa,Brentford
-4,Manchester City,Tottenham Hotspur,Chelsea,Nottingham Forest,Liverpool,Chelsea
-5,Chelsea,Arsenal,Newcastle United,Arsenal,Newcastle United,Manchester City
-6,Manchester United,Chelsea,Manchester City,Liverpool,Crystal Palace,Arsenal
-7,Everton,Nottingham Forest,Brighton & Hove Albion,Manchester United,Brighton & Hove Albion,Nottingham Forest
-8,Tottenham Hotspur,Crystal Palace,Manchester United,Chelsea,Manchester City,Brighton & Hove Albion
-9,Nottingham Forest,Brighton & Hove Albion,AFC Bournemouth,Brighton & Hove Albion,Nottingham Forest,AFC Bournemouth
-10,Newcastle United,Everton,Aston Villa,Newcastle United,Brentford,Tottenham Hotspur
-11,Brighton & Hove Albion,Newcastle United,Fulham,Aston Villa,Tottenham Hotspur,Newcastle United
-12,Crystal Palace,Manchester United,Brentford,Fulham,Leeds United,Fulham
-13,Fulham,Brentford,Ipswich Town,Sunderland,Fulham,Coventry City
-14,Brentford,Fulham,Everton,Leeds United,AFC Bournemouth,Crystal Palace
-15,AFC Bournemouth,Sunderland,Crystal Palace,AFC Bournemouth,Everton,Manchester United
-16,Leeds United,Leeds United,Nottingham Forest,Brentford,Manchester United,Sunderland
-17,Sunderland,Hull City,Sunderland,Everton,Ipswich Town,Hull City
-18,Hull City,AFC Bournemouth,Hull City,Ipswich Town,Sunderland,Everton
-19,Ipswich Town,Ipswich Town,Leeds United,Hull City,Coventry City,Ipswich Town
-20,Coventry City,Coventry City,Coventry City,Coventry City,Hull City,Leeds United
+1,Hull City,Liverpool,Tottenham Hotspur,Leeds United,Brentford,Ipswich Town
+2,Liverpool,Manchester United,Fulham,AFC Bournemouth,Manchester United,Leeds United
+3,Arsenal,Ipswich Town,Manchester United,Everton,Coventry City,Manchester City
+4,Brighton & Hove Albion,Arsenal,Newcastle United,Brighton & Hove Albion,Ipswich Town,Sunderland
+5,Ipswich Town,Brighton & Hove Albion,Liverpool,Hull City,Tottenham Hotspur,Hull City
+6,AFC Bournemouth,Chelsea,AFC Bournemouth,Tottenham Hotspur,Brighton & Hove Albion,Everton
+7,Fulham,Fulham,Arsenal,Ipswich Town,Leeds United,AFC Bournemouth
+8,Manchester United,Sunderland,Brentford,Sunderland,Fulham,Brighton & Hove Albion
+9,Brentford,Manchester City,Chelsea,Manchester United,AFC Bournemouth,Crystal Palace
+10,Chelsea,Hull City,Everton,Fulham,Sunderland,Brentford
+11,Manchester City,Everton,Brighton & Hove Albion,Arsenal,Newcastle United,Manchester United
+12,Nottingham Forest,Crystal Palace,Leeds United,Aston Villa,Arsenal,Aston Villa
+13,Leeds United,Leeds United,Manchester City,Nottingham Forest,Hull City,Liverpool
+14,Newcastle United,Coventry City,Sunderland,Crystal Palace,Crystal Palace,Chelsea
+15,Tottenham Hotspur,Aston Villa,Nottingham Forest,Newcastle United,Chelsea,Arsenal
+16,Everton,AFC Bournemouth,Crystal Palace,Chelsea,Aston Villa,Tottenham Hotspur
+17,Sunderland,Newcastle United,Ipswich Town,Manchester City,Manchester City,Coventry City
+18,Coventry City,Brentford,Hull City,Brentford,Nottingham Forest,Nottingham Forest
+19,Aston Villa,Nottingham Forest,Coventry City,Liverpool,Everton,Fulham
+20,Crystal Palace,Tottenham Hotspur,Aston Villa,Coventry City,Liverpool,Newcastle United
