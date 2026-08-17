@@ -23,22 +23,24 @@ CONFIG <- list(
 
   ## Scoring ---------------------------------------------------------------
   ## Which scoring rule to use. See R/scoring.R for the implementations.
+  ##   "proximity5"   5 points for an exact call, -1 per place out, floor 0
+  ##                  (high = good) -- THE COMPETITION'S RULE
   ##   "abs_diff"     sum of |predicted position - actual position|  (low = good)
   ##   "squared_diff" sum of (predicted - actual)^2                  (low = good)
-  ##   "banded"       points awarded per team by how close the guess was
-  ##                  (high = good) -- edit SCORING_BANDS below
-  ## >>> CHANGE THIS ONE LINE when the points method is finalised. <<<
-  scoring_method = "abs_diff",
+  ##   "banded"       arbitrary points per closeness band, see banded_points
+  scoring_method = "proximity5",
 
   ## Used only by the "banded" method: points for being off by N places.
   ## Anything further out than the last band scores `banded_floor`.
   banded_points  = c("0" = 10, "1" = 6, "2" = 4, "3" = 2, "4" = 1),
   banded_floor   = 0,
 
-  ## Bonus points (banded method only) for calling the champion / the
-  ## relegated three exactly right. Set to 0 to switch off.
-  bonus_champion   = 5,
-  bonus_relegation = 5,
+  ## Bonus points for calling the champion / the relegated three exactly right.
+  ## Both are 0 so that totals are the basic per-club scores and nothing else.
+  ## Set them when the bonus rules are decided; the leaderboard grows a Bonus
+  ## column automatically as soon as either is non-zero.
+  bonus_champion   = 0,
+  bonus_relegation = 0,
 
   ## Presentation ----------------------------------------------------------
   site_title     = "EPL Table Battle",

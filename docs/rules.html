@@ -292,11 +292,14 @@ the change, so a late edit cannot quietly reach the site.</p>
 </div>
 <div id="scoring" class="section level2">
 <h2>Scoring</h2>
-<p>Each club scores the number of places between where you put it and
-where it actually sits. Your total is the sum across all 20 clubs.
-<strong>Lowest total wins.</strong> A perfect table scores 0.</p>
-<p><strong>Currently active rule:</strong> <code>abs_diff</code> —
-lowest total wins.</p>
+<p>Every club is scored on its own. Put a club in exactly the right
+place and it is worth <strong>5 points</strong>; each place you were out
+costs one point, down to a floor of 0. So a club four places off still
+earns 1, and anything five or more places off earns nothing. Your total
+is the sum across all 20 clubs. <strong>Highest total wins</strong>, and
+a perfect table scores 100.</p>
+<p><strong>Currently active rule:</strong> <code>proximity5</code> —
+highest total wins.</p>
 <p>Ties are broken by (1) more exact positions called, then (2) a
 smaller worst single miss.</p>
 <div id="worked-example" class="section level3">
@@ -336,7 +339,7 @@ Liverpool
 0
 </td>
 <td style="text-align:right;">
-0
+5
 </td>
 </tr>
 <tr>
@@ -353,7 +356,7 @@ Arsenal
 2
 </td>
 <td style="text-align:right;">
-2
+3
 </td>
 </tr>
 <tr>
@@ -370,12 +373,12 @@ Everton
 3
 </td>
 <td style="text-align:right;">
-3
+2
 </td>
 </tr>
 </tbody>
 </table>
-<p>Across three clubs that entrant would score 5. The real thing runs
+<p>Across three clubs that entrant would score 10. The real thing runs
 over all 20.</p>
 <p class="note">
 The points method is still being finalised. Changing it means editing

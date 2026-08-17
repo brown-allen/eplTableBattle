@@ -59,7 +59,13 @@ render_live_table <- function(live) {
 #' The leaderboard.
 render_leaderboard <- function(res) {
   lb <- res$leaderboard
-  arrow <- if (res$direction == "lower") "lowest wins" else "highest wins"
+  arrow <- if (res$direction == "lower") {
+    "lowest wins"
+  } else {
+    cap <- max_club_points(res$method)
+    if (is.na(cap)) "highest wins"
+    else sprintf("highest wins — %d is a perfect table", cap * nrow(LIVE))
+  }
 
   out <- lb |>
     transmute(

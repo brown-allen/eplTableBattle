@@ -17,6 +17,17 @@ suppressPackageStartupMessages({
 
 ## --- individual rules ------------------------------------------------------
 
+## The competition's rule. Each club is worth 5 points for an exact call,
+## one less for every place the guess was out, and never less than 0:
+##
+##   off by  0  1  2  3  4  5+
+##   points  5  4  3  2  1  0
+##
+## A perfect table scores 5 * 20 = 100.
+score_proximity5 <- function(df) {
+  pmax(0, 5 - abs(df$predicted - df$actual))
+}
+
 score_abs_diff <- function(df) abs(df$predicted - df$actual)
 
 score_squared_diff <- function(df) (df$predicted - df$actual)^2
@@ -32,10 +43,18 @@ score_banded <- function(df) {
 }
 
 SCORERS <- list(
+  proximity5   = score_proximity5,
   abs_diff     = score_abs_diff,
   squared_diff = score_squared_diff,
   banded       = score_banded
 )
+
+## The maximum a single club can be worth, used to show "x of y" totals.
+max_club_points <- function(method = CONFIG$scoring_method) {
+  if (score_direction(method) != "higher") return(NA_integer_)
+  probe <- data.frame(predicted = 1L, actual = 1L)
+  as.integer(SCORERS[[method]](probe))
+}
 
 ## Bonuses apply only to "higher is better" rules; for difference-based rules
 ## they would perversely add to a player's (bad) total, so they are skipped.
@@ -140,6 +159,13 @@ score_all <- function(predictions, live, players = NULL,
 describe_method <- function(method = CONFIG$scoring_method) {
   switch(
     method,
+    proximity5 = paste0(
+      "Every club is scored on its own. Put a club in exactly the right place ",
+      "and it is worth **5 points**; each place you were out costs one point, ",
+      "down to a floor of 0. So a club four places off still earns 1, and ",
+      "anything five or more places off earns nothing. Your total is the sum ",
+      "across all 20 clubs. **Highest total wins**, and a perfect table ",
+      "scores 100."),
     abs_diff = paste0(
       "Each club scores the number of places between where you put it and ",
       "where it actually sits. Your total is the sum across all 20 clubs. ",
