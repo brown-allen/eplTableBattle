@@ -39,14 +39,11 @@ CONFIG <- list(
   ## league table looks. 5pm Eastern on Monday 24 August 2026.
   scoring_start  = as.POSIXct("2026-08-24 17:00", tz = "America/New_York"),
 
-  ## When bonuses start counting -- the final week of the season.
-  ##
-  ## NOTE: 20 May 2027 is a THURSDAY. If you meant the Saturday, that is
-  ## 22 May 2027. More importantly the 2026-27 season's final round is
-  ## expected on Sunday 23 May 2027, and bonuses computed before the last
-  ## matchday would be scored against an unfinished table -- the champion and
-  ## the relegated three can still change. Push this to 24 May 2027 to be safe.
-  bonus_start    = as.POSIXct("2027-05-20 00:00", tz = "America/New_York"),
+  ## When bonuses start counting. Set in UTC deliberately: 18:00 UTC on
+  ## Sunday 30 May 2027, which is 14:00 Eastern the same day. That is safely
+  ## after the final round (expected 23 May 2027), so bonuses are only ever
+  ## computed against a finished table.
+  bonus_start    = as.POSIXct("2027-05-30 18:00", tz = "UTC"),
 
   ## Bonus values.
   bonus_champion        = 5,  # predicted the champion exactly

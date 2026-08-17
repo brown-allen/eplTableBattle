@@ -18,6 +18,13 @@ suppressPackageStartupMessages({
   ifelse(off <= 6, "#c8642a", "#b42318"))))
 }
 
+#' The one canonical order entrants appear in, used by every page so the
+#' side-by-side grid and the per-entrant sections always line up. Alphabetical
+#' by display name; `tolower` keeps it case-insensitive.
+entrant_order <- function(players) {
+  players[order(tolower(players$display_name), players$player), , drop = FALSE]
+}
+
 fmt_when <- function(x, tz = CONFIG$timezone) {
   if (is.null(x) || all(is.na(x))) return("unknown")
   format(as.POSIXct(x), "%A %d %B %Y, %H:%M %Z", tz = tz)
@@ -146,12 +153,15 @@ render_comparison_grid <- function(res, players) {
   wide <- res$detail |>
     select(player, predicted, team) |>
     tidyr::pivot_wider(names_from = player, values_from = team) |>
-    arrange(predicted) |>
-    rename(`#` = predicted)
+    arrange(predicted)
 
-  ## Use display names for the column headers.
-  key_to_name <- setNames(players$display_name, players$player)
-  names(wide)[-1] <- unname(key_to_name[names(wide)[-1]])
+  ## Columns follow entrant_order(), not whatever order the prediction sheet
+  ## happens to store, so this grid and the per-entrant sections on the
+  ## predictions page always run in the same sequence.
+  ord <- entrant_order(players)
+  keys <- intersect(ord$player, names(wide))
+  wide <- wide[, c("predicted", keys)]
+  names(wide) <- c("#", ord$display_name[match(keys, ord$player)])
 
   wide |>
     kbl(escape = FALSE, align = c("r", rep("l", ncol(wide) - 1))) |>

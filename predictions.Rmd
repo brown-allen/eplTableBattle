@@ -15,7 +15,9 @@ Each table below is exactly as its author submitted it,
 in the live table right now, and *Off by* is the damage.
 
 ```{r sections, results='asis'}
-ordered <- PLAYERS[match(RES$leaderboard$player, PLAYERS$player), ]
+# Same order as the side-by-side grid on the front page, so the two pages can
+# be read against each other. Each entrant's current rank is in their pills.
+ordered <- entrant_order(PLAYERS)
 
 chunks <- character(0)
 for (i in seq_len(nrow(ordered))) {
