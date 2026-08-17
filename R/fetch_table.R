@@ -1,14 +1,24 @@
 # ---------------------------------------------------------------------------
-# fetch_table.R -- pull the live Premier League table from ESPN's public API
+# fetch_table.R -- pull the live Premier League table
 # ---------------------------------------------------------------------------
-# No API key required. Every successful fetch is cached to data/live_table.csv
-# so the site still builds (from the last good snapshot) if ESPN is down or
-# the machine is offline.
+# Two sources, both returning the same tidy 20-row table:
+#
+#   football-data.org  documented v4 API, needs a free key in .Renviron
+#   ESPN               undocumented public endpoint, no key
+#
+# CONFIG$data_source picks the primary; the other is the automatic fallback.
+# Every successful fetch is cached to data/live_table.csv, so the site still
+# builds from the last good snapshot if both sources fail or you are offline.
+#
+# The key is used ONLY here, at build time, in a request header. It never
+# reaches the rendered pages -- they read the cached CSV, which holds nothing
+# but football. build.R re-checks that before finishing.
 
 suppressPackageStartupMessages({
   library(dplyr)
   library(readr)
   library(jsonlite)
+  library(httr)
 })
 
 ESPN_STANDINGS_URL <- function(league = CONFIG$espn_league) {
@@ -47,16 +57,109 @@ fetch_live_table <- function(league = CONFIG$espn_league) {
 
   tbl$team <- resolve_team(tbl$espn_name)
 
-  ## Trust ESPN's own rank when it is a clean 1..n permutation; otherwise
-  ## (e.g. pre-season, when every rank is 1) derive it from the league's
-  ## own tiebreak order: points, then goal difference, then goals scored.
-  ranks_ok <- !anyNA(tbl$espn_rank) &&
-    setequal(sort(tbl$espn_rank), seq_len(nrow(tbl)))
+  ## Pre-season ESPN reports every rank as 1, which .finalise_table detects
+  ## and replaces with the league's own tiebreak order.
+  .finalise_table(tbl, tbl$espn_rank)
+}
 
-  if (ranks_ok) {
-    tbl <- tbl |> arrange(espn_rank) |> mutate(position = as.integer(espn_rank))
+## --- football-data.org v4 --------------------------------------------------
+
+FD_STANDINGS_URL <- function(comp = CONFIG$fd_competition) {
+  sprintf("https://api.football-data.org/v4/competitions/%s/standings", comp)
+}
+
+#' Fetch and tidy the current table from football-data.org.
+#' Requires CONFIG$fd_key_env to be set; see README for .Renviron setup.
+fetch_live_table_fd <- function(comp = CONFIG$fd_competition) {
+  key <- fd_api_key()
+  if (!nzchar(key)) {
+    stop("No football-data.org key found in $", CONFIG$fd_key_env,
+         ". Add it to .Renviron (see README) or set CONFIG$data_source ",
+         "to \"espn\".", call. = FALSE)
+  }
+
+  resp <- httr::GET(
+    FD_STANDINGS_URL(comp),
+    httr::add_headers(`X-Auth-Token` = key),
+    httr::timeout(30)
+  )
+
+  ## Report status without ever echoing the key.
+  if (httr::status_code(resp) %in% c(400, 401)) {
+    stop("football-data.org did not accept the token (HTTP ",
+         httr::status_code(resp), "). It is usually a malformed key -- check ",
+         "for stray quotes, spaces or a trailing newline in .Renviron.",
+         call. = FALSE)
+  }
+  if (httr::status_code(resp) == 403) {
+    stop("football-data.org rejected the key (403). Check it is correct and ",
+         "that your plan covers competition ", comp, ".", call. = FALSE)
+  }
+  if (httr::status_code(resp) == 429) {
+    stop("football-data.org rate limit hit (429). The free tier allows 10 ",
+         "requests a minute; wait a moment and rebuild.", call. = FALSE)
+  }
+  if (httr::http_error(resp)) {
+    stop("football-data.org returned HTTP ", httr::status_code(resp), ".",
+         call. = FALSE)
+  }
+
+  raw <- jsonlite::fromJSON(
+    httr::content(resp, as = "text", encoding = "UTF-8"),
+    simplifyVector = FALSE
+  )
+
+  ## A LEAGUE competition returns TOTAL, HOME and AWAY standings; we want the
+  ## overall one.
+  total <- Filter(function(s) identical(s$type, "TOTAL"), raw$standings)
+  if (!length(total)) {
+    stop("football-data.org returned no TOTAL standings for ", comp, ".",
+         call. = FALSE)
+  }
+  rows <- total[[1]]$table
+  if (!length(rows)) stop("football-data.org returned an empty table.", call. = FALSE)
+
+  tbl <- lapply(rows, function(r) {
+    tibble::tibble(
+      src_position = as.integer(r$position),
+      src_name     = r$team$name %||% NA_character_,
+      src_short    = r$team$shortName %||% NA_character_,
+      played       = as.integer(r$playedGames),
+      won          = as.integer(r$won),
+      drawn        = as.integer(r$draw),
+      lost         = as.integer(r$lost),
+      gf           = as.integer(r$goalsFor),
+      ga           = as.integer(r$goalsAgainst),
+      gd           = as.integer(r$goalDifference),
+      points       = as.integer(r$points)
+    )
+  }) |> bind_rows()
+
+  ## Club names arrive as "Liverpool FC", "Hull City AFC" and so on; the
+  ## resolver strips those suffixes. shortName covers anything it cannot.
+  tbl$team <- resolve_team(tbl$src_name, strict = FALSE)
+  if (anyNA(tbl$team)) {
+    idx <- is.na(tbl$team)
+    tbl$team[idx] <- resolve_team(tbl$src_short[idx], strict = TRUE)
+  }
+
+  .finalise_table(tbl, tbl$src_position)
+}
+
+## --- shared ----------------------------------------------------------------
+
+`%||%` <- function(x, y) if (is.null(x)) y else x
+
+#' Apply the source's ranking when it is a clean 1..n permutation, otherwise
+#' derive it from the league's own tiebreaks, then return the canonical shape.
+.finalise_table <- function(tbl, src_rank) {
+  tbl$.src_rank <- src_rank
+  ranks_ok <- !anyNA(src_rank) && setequal(sort(src_rank), seq_len(nrow(tbl)))
+
+  tbl <- if (ranks_ok) {
+    tbl |> arrange(.src_rank) |> mutate(position = as.integer(.src_rank))
   } else {
-    tbl <- tbl |>
+    tbl |>
       arrange(desc(points), desc(gd), desc(gf), team) |>
       mutate(position = row_number())
   }
@@ -71,20 +174,49 @@ fetch_live_table <- function(league = CONFIG$espn_league) {
     )
 }
 
+#' Try the configured source, then the other one.
+fetch_any_source <- function(primary = CONFIG$data_source) {
+  order <- if (identical(primary, "espn")) c("espn", "football-data")
+           else c("football-data", "espn")
+
+  errs <- character(0)
+  for (src in order) {
+    tbl <- tryCatch({
+      t <- if (src == "espn") fetch_live_table() else fetch_live_table_fd()
+      attr(t, "provider") <- src
+      t
+    }, error = function(e) {
+      errs[[src]] <<- conditionMessage(e)
+      NULL
+    })
+    if (!is.null(tbl)) {
+      if (length(errs)) {
+        warning("Primary source failed (", names(errs)[1], ": ", errs[[1]],
+                "); used ", src, " instead.", call. = FALSE)
+      }
+      return(tbl)
+    }
+  }
+  stop("All sources failed.\n",
+       paste0("  ", names(errs), ": ", unlist(errs), collapse = "\n"),
+       call. = FALSE)
+}
+
 ## The cache carries a sidecar recording when it was last written and whether
 ## the most recent fetch attempt succeeded. Pages read this rather than
 ## guessing, so "refreshed 20 minutes ago" and "ESPN is down, this is stale"
 ## are told apart correctly.
 .status_path <- function(cache) file.path(dirname(cache), "live_table_status.csv")
 
-.write_status <- function(cache, ok) {
+.write_status <- function(cache, ok, provider = NA_character_) {
   prev <- .read_status(cache)
   fetched_at <- if (ok) format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z") else prev$fetched_at
   write_csv(
     tibble::tibble(
       fetched_at = fetched_at,
       last_attempt = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"),
-      last_attempt_ok = ok
+      last_attempt_ok = ok,
+      provider = if (ok) provider else prev$provider
     ),
     .status_path(cache)
   )
@@ -93,10 +225,21 @@ fetch_live_table <- function(league = CONFIG$espn_league) {
 .read_status <- function(cache) {
   p <- .status_path(cache)
   if (!file.exists(p)) {
-    return(list(fetched_at = NA_character_, last_attempt_ok = NA))
+    return(list(fetched_at = NA_character_, last_attempt_ok = NA,
+                provider = NA_character_))
   }
   s <- read_csv(p, show_col_types = FALSE)
-  list(fetched_at = s$fetched_at[1], last_attempt_ok = isTRUE(s$last_attempt_ok[1]))
+  list(fetched_at = s$fetched_at[1],
+       last_attempt_ok = isTRUE(s$last_attempt_ok[1]),
+       provider = if ("provider" %in% names(s)) s$provider[1] else NA_character_)
+}
+
+#' Human-readable name of a source, for the site's attribution line.
+provider_label <- function(p) {
+  switch(as.character(p),
+         "football-data" = "football-data.org",
+         "espn" = "ESPN",
+         "the data provider")
 }
 
 #' Fetch with caching. On failure, fall back to the cached snapshot and warn.
@@ -110,16 +253,18 @@ fetch_live_table <- function(league = CONFIG$espn_league) {
 #' refresh = FALSE so a three-page render is one API call, not three.
 get_live_table <- function(cache = "data/live_table.csv",
                            refresh = TRUE,
-                           league = CONFIG$espn_league) {
+                           primary = CONFIG$data_source) {
 
   if (refresh) {
-    tbl <- tryCatch(fetch_live_table(league), error = function(e) {
+    tbl <- tryCatch(fetch_any_source(primary), error = function(e) {
       warning("Live fetch failed (", conditionMessage(e), "); using cache.",
               call. = FALSE)
       NULL
     })
     dir.create(dirname(cache), showWarnings = FALSE, recursive = TRUE)
-    .write_status(cache, ok = !is.null(tbl))
+    .write_status(cache, ok = !is.null(tbl),
+                  provider = if (is.null(tbl)) NA_character_
+                             else attr(tbl, "provider"))
     if (!is.null(tbl)) write_csv(tbl, cache)
   }
 
@@ -134,5 +279,6 @@ get_live_table <- function(cache = "data/live_table.csv",
     as.POSIXct(st$fetched_at, format = "%Y-%m-%dT%H:%M:%S%z")
   } else file.info(cache)$mtime
   attr(tbl, "stale") <- isFALSE(st$last_attempt_ok)
+  attr(tbl, "provider") <- st$provider
   tbl
 }

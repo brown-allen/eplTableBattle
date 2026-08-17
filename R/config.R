@@ -6,6 +6,15 @@ CONFIG <- list(
 
   ## Competition -----------------------------------------------------------
   season_label   = "2026-27",
+
+  ## Where the live table comes from. The primary source is tried first and
+  ## the other is the automatic fallback, so a bad key or an outage degrades
+  ## rather than breaking the build.
+  ##   "football-data"  api.football-data.org v4 -- documented, needs a key
+  ##   "espn"           ESPN's public endpoint  -- undocumented, no key
+  data_source    = "football-data",
+  fd_competition = "PL",              # football-data.org competition code
+  fd_key_env     = "FOOTBALL_DATA_API_KEY",
   espn_league    = "eng.1",           # ESPN league slug for the Premier League
 
   ## Lock: predictions are frozen at this instant. Stored as US/Eastern.
@@ -35,6 +44,18 @@ CONFIG <- list(
   site_title     = "EPL Table Battle",
   timezone       = "America/New_York"
 )
+
+## Secrets ------------------------------------------------------------------
+## The API key lives in .Renviron in the project root, which is gitignored and
+## never read by any page. R loads that file automatically when it starts in
+## this directory; this line covers the case where the project is sourced from
+## somewhere else.
+if (file.exists(".Renviron")) readRenviron(".Renviron")
+
+#' The football-data.org key, or "" if none is set. Never print this.
+fd_api_key <- function() Sys.getenv(CONFIG$fd_key_env, "")
+
+has_fd_key <- function() nzchar(fd_api_key())
 
 ## Derived -----------------------------------------------------------------
 ## TRUE once predictions can no longer be changed.

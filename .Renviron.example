@@ -1,0 +1,13 @@
+# Copy this file to .Renviron (same directory) and paste your real key after
+# the "=" with no quotes and no spaces around it. .Renviron is gitignored.
+#
+#   cp .Renviron.example .Renviron
+#
+# Get a free key at https://www.football-data.org/client/register
+# The free tier allows 10 requests a minute and covers the Premier League.
+#
+# R reads .Renviron automatically when it starts in this directory, so
+# `Rscript build.R` picks the key up with no further setup. Restart any R
+# session that was already running before you created the file.
+
+FOOTBALL_DATA_API_KEY=your_key_here

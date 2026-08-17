@@ -2,6 +2,11 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# API keys. .Renviron holds FOOTBALL_DATA_API_KEY and must never be committed.
+.Renviron
+.Renviron.*
+!.Renviron.example
 *.knit.md
 *.utf8.md
 .DS_Store

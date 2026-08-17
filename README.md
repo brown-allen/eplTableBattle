@@ -142,15 +142,58 @@ rule is "highest wins", list it in `score_direction()`.
 
 ## Data source
 
-ESPN's public standings endpoint
-(`site.api.espn.com/apis/v2/sports/soccer/eng.1/standings`) — no API key, no
-account. Each successful fetch is cached to `data/live_table.csv`, so a failed
-fetch degrades to the last good snapshot and the page says the numbers may be
-behind rather than silently showing stale data.
+Two providers, both reduced to the same tidy 20-row table:
 
-If ESPN ever changes shape, `fetch_live_table()` in `R/fetch_table.R` is the
-only function that needs rewriting — it returns a tidy 20-row table and nothing
-upstream cares where it came from.
+| Source | Endpoint | Key |
+|---|---|---|
+| **football-data.org** *(primary)* | `api.football-data.org/v4/competitions/PL/standings` | yes |
+| ESPN *(fallback)* | `site.api.espn.com/apis/v2/sports/soccer/eng.1/standings` | no |
+
+`CONFIG$data_source` picks the primary; the other is tried automatically if the
+first fails, so a missing key, a 403, a rate limit or an outage degrades instead
+of breaking the build. If both fail, the cached `data/live_table.csv` is used and
+the front page says the numbers may be behind. Whichever source actually
+supplied the data is named in the attribution line.
+
+### The API key
+
+Get a free key at <https://www.football-data.org/client/register> (10 requests a
+minute, Premier League included — far more than a once-a-matchweek rebuild
+needs). Then:
+
+```bash
+cp .Renviron.example .Renviron
+```
+
+and paste the key after the `=`, no quotes, no spaces, no trailing blank line:
+
+```
+FOOTBALL_DATA_API_KEY=your_actual_key
+```
+
+R reads `.Renviron` automatically when it starts in this directory, so
+`Rscript build.R` picks it up with no further setup. Restart any R session that
+was already open.
+
+**How the key stays private.** This matters because `docs/` is published to a
+public repo:
+
+- `.Renviron` is gitignored (`.Renviron.example` is the committed placeholder).
+- The key is used **only at build time**, on your machine, in an `X-Auth-Token`
+  request header. The published pages never call the API — they read
+  `data/live_table.csv`, which contains nothing but football.
+- `build.R` greps every rendered file for the key before finishing. If it ever
+  appears, the build **deletes `docs/` and stops** rather than leaving something
+  publishable on disk. Verified by deliberately triggering it.
+- Error messages report HTTP status codes and never echo the token.
+
+The one thing the tooling cannot check is your own shell history — set the key by
+editing `.Renviron`, not by running `export FOOTBALL_DATA_API_KEY=...`.
+
+If either provider changes shape, `fetch_live_table_fd()` and
+`fetch_live_table()` in `R/fetch_table.R` are the only functions that need
+touching; both hand back the same tidy table and nothing upstream cares which
+one ran.
 
 ## Publishing
 

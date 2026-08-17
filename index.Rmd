@@ -40,7 +40,7 @@ render_live_table(LIVE)
 
 <p class="note">
 Champions League places shaded green, relegation places shaded red.
-Data from ESPN, last refreshed
+Data from `r provider_label(attr(LIVE, "provider"))`, last refreshed
 **`r fmt_when(attr(LIVE, "fetched_at"))`**`r if (isTRUE(attr(LIVE, "stale"))) " — the most recent refresh attempt failed, so these numbers may be behind" else ""`.
 </p>
 

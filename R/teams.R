@@ -23,6 +23,17 @@ load_teams <- function(path = "data/teams.csv") {
   x
 }
 
+## Data providers append the club-type suffix: football-data.org returns
+## "Liverpool FC", "Hull City AFC", "Sunderland AFC". Dropping it lets those
+## match without cluttering data/teams.csv with a variant of every club.
+##
+## Both suffixes are tried as separate candidates rather than as one "a?fc$"
+## pattern, because that pattern eats a legitimate trailing "a": "chelseafc"
+## would become "chelse" and "astonvillafc" would become "astonvill".
+.club_key_variants <- function(x) {
+  unique(c(x, sub("fc$", "", x), sub("afc$", "", x)))
+}
+
 #' Build a lookup from any accepted spelling -> canonical team name.
 team_lookup <- function(teams = load_teams()) {
   out <- list()
@@ -32,7 +43,13 @@ team_lookup <- function(teams = load_teams()) {
       teams$team[i], teams$short_name[i], teams$abbrev[i],
       strsplit(teams$aliases[i], "|", fixed = TRUE)[[1]]
     )
-    for (v in unique(.norm(variants))) out[[v]] <- canonical
+    keys <- .norm(variants)
+    ## Exact spellings win outright; suffix-stripped forms fill gaps only, so
+    ## they can never clobber another club's real name.
+    for (v in unique(keys)) out[[v]] <- canonical
+    for (v in setdiff(.club_key_variants(keys), keys)) {
+      if (nzchar(v) && is.null(out[[v]])) out[[v]] <- canonical
+    }
   }
   out
 }
@@ -44,7 +61,10 @@ resolve_team <- function(x, teams = load_teams(), strict = TRUE) {
   lk <- team_lookup(teams)
   key <- .norm(x)
   out <- unname(vapply(key, function(k) {
-    if (!is.null(lk[[k]])) lk[[k]] else NA_character_
+    for (v in .club_key_variants(k)) {       # "liverpoolfc" -> "liverpool"
+      if (nzchar(v) && !is.null(lk[[v]])) return(lk[[v]])
+    }
+    NA_character_
   }, character(1)))
 
   if (strict && anyNA(out)) {

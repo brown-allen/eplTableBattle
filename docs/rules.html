@@ -388,10 +388,11 @@ touching.
 </div>
 <div id="data" class="section level2">
 <h2>Data</h2>
-<p>The live table is pulled from ESPN’s public standings endpoint each
-time the site is rebuilt. It is cached to
-<code>data/live_table.csv</code>, so if the fetch fails the site still
-builds from the last good snapshot and says so.</p>
+<p>The live table is pulled from <strong>ESPN</strong> each time the
+site is rebuilt, with the other of football-data.org and ESPN standing
+by as an automatic fallback. It is cached to
+<code>data/live_table.csv</code>, so if both fail the site still builds
+from the last good snapshot and says so on the front page.</p>
 </div>
 <div id="the-clubs" class="section level2">
 <h2>The clubs</h2>

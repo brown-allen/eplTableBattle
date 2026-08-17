@@ -63,9 +63,11 @@ whatever is set there; nothing else needs touching.
 
 ## Data
 
-The live table is pulled from ESPN's public standings endpoint each time the
-site is rebuilt. It is cached to `data/live_table.csv`, so if the fetch fails the
-site still builds from the last good snapshot and says so.
+The live table is pulled from
+**`r provider_label(attr(LIVE, "provider"))`** each time the site is rebuilt,
+with the other of football-data.org and ESPN standing by as an automatic
+fallback. It is cached to `data/live_table.csv`, so if both fail the site still
+builds from the last good snapshot and says so on the front page.
 
 ## The clubs
 
