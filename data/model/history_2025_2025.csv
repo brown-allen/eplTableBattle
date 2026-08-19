@@ -1,0 +1,117 @@
+league,season,raw_name,rank,played,points,gf,ga,ppg
+eng.1,2025,Arsenal,1,38,85,71,27,2.236842105263158
+eng.1,2025,Manchester City,2,38,78,77,35,2.0526315789473686
+eng.1,2025,Manchester United,3,38,71,69,50,1.868421052631579
+eng.1,2025,Aston Villa,4,38,65,56,49,1.7105263157894737
+eng.1,2025,Liverpool,5,38,60,63,53,1.5789473684210527
+eng.1,2025,AFC Bournemouth,6,38,57,58,54,1.5
+eng.1,2025,Sunderland,7,38,54,42,48,1.4210526315789473
+eng.1,2025,Brighton & Hove Albion,8,38,53,52,46,1.394736842105263
+eng.1,2025,Brentford,9,38,53,55,52,1.394736842105263
+eng.1,2025,Chelsea,10,38,52,58,52,1.368421052631579
+eng.1,2025,Fulham,11,38,52,47,51,1.368421052631579
+eng.1,2025,Newcastle United,12,38,49,53,55,1.2894736842105263
+eng.1,2025,Everton,13,38,49,47,50,1.2894736842105263
+eng.1,2025,Leeds United,14,38,47,49,56,1.236842105263158
+eng.1,2025,Crystal Palace,15,38,45,41,51,1.1842105263157894
+eng.1,2025,Nottingham Forest,16,38,44,48,51,1.1578947368421053
+eng.1,2025,Tottenham Hotspur,17,38,41,48,57,1.0789473684210527
+eng.1,2025,West Ham United,18,38,39,46,65,1.0263157894736843
+eng.1,2025,Burnley,19,38,22,38,75,0.5789473684210527
+eng.1,2025,Wolverhampton Wanderers,20,38,20,27,68,0.5263157894736842
+eng.2,2025,Coventry City,1,46,95,97,45,2.0652173913043477
+eng.2,2025,Ipswich Town,2,46,84,80,47,1.826086956521739
+eng.2,2025,Millwall,3,46,83,64,49,1.8043478260869565
+eng.2,2025,Southampton,4,46,80,82,56,1.7391304347826086
+eng.2,2025,Middlesbrough,5,46,80,72,47,1.7391304347826086
+eng.2,2025,Hull City,6,46,73,70,66,1.5869565217391304
+eng.2,2025,Wrexham,7,46,71,69,65,1.5434782608695652
+eng.2,2025,Derby County,8,46,69,67,59,1.5
+eng.2,2025,Norwich City,9,46,65,63,56,1.4130434782608696
+eng.2,2025,Birmingham City,10,46,64,57,56,1.391304347826087
+eng.2,2025,Swansea City,11,46,64,57,59,1.391304347826087
+eng.2,2025,Bristol City,12,46,62,59,59,1.3478260869565217
+eng.2,2025,Sheffield United,13,46,60,66,66,1.3043478260869565
+eng.2,2025,Preston North End,14,46,60,55,62,1.3043478260869565
+eng.2,2025,Queens Park Rangers,15,46,58,61,73,1.2608695652173914
+eng.2,2025,Watford,16,46,57,53,65,1.2391304347826086
+eng.2,2025,Stoke City,17,46,55,51,56,1.1956521739130435
+eng.2,2025,Portsmouth,18,46,55,49,64,1.1956521739130435
+eng.2,2025,Charlton Athletic,19,46,53,44,58,1.1521739130434783
+eng.2,2025,Blackburn Rovers,20,46,52,42,56,1.1304347826086956
+eng.2,2025,West Bromwich Albion,21,46,51,48,58,1.108695652173913
+eng.2,2025,Oxford United,22,46,47,45,59,1.0217391304347827
+eng.2,2025,Leicester City,23,46,46,58,68,1
+eng.2,2025,Sheffield Wednesday,24,46,0,29,89,0
+uefa.champions,2025,Arsenal,1,8,24,23,4,3
+uefa.champions,2025,Bayern Munich,2,8,21,22,8,2.625
+uefa.champions,2025,Liverpool,3,8,18,20,8,2.25
+uefa.champions,2025,Tottenham Hotspur,4,8,17,17,7,2.125
+uefa.champions,2025,Barcelona,5,8,16,22,14,2
+uefa.champions,2025,Chelsea,6,8,16,17,10,2
+uefa.champions,2025,Sporting CP,7,8,16,17,11,2
+uefa.champions,2025,Manchester City,8,8,16,15,9,2
+uefa.champions,2025,Real Madrid,9,8,15,21,12,1.875
+uefa.champions,2025,Internazionale,10,8,15,15,7,1.875
+uefa.champions,2025,Paris Saint-Germain,11,8,14,21,11,1.75
+uefa.champions,2025,Newcastle United,12,8,14,17,7,1.75
+uefa.champions,2025,Juventus,13,8,13,14,10,1.625
+uefa.champions,2025,Atlético Madrid,14,8,13,17,15,1.625
+uefa.champions,2025,Atalanta,15,8,13,10,10,1.625
+uefa.champions,2025,Bayer Leverkusen,16,8,12,13,14,1.5
+uefa.champions,2025,Borussia Dortmund,17,8,11,19,17,1.375
+uefa.champions,2025,Olympiacos,18,8,11,10,14,1.375
+uefa.champions,2025,Club Brugge,19,8,10,15,17,1.25
+uefa.champions,2025,Galatasaray,20,8,10,9,11,1.25
+uefa.champions,2025,AS Monaco,21,8,10,8,14,1.25
+uefa.champions,2025,FK Qarabag,22,8,10,13,21,1.25
+uefa.champions,2025,Bodo/Glimt,23,8,9,14,15,1.125
+uefa.champions,2025,Benfica,24,8,9,10,12,1.125
+uefa.champions,2025,Marseille,25,8,9,11,14,1.125
+uefa.champions,2025,Pafos,26,8,9,8,11,1.125
+uefa.champions,2025,Union St.-Gilloise,27,8,9,8,17,1.125
+uefa.champions,2025,PSV Eindhoven,28,8,8,16,16,1
+uefa.champions,2025,Athletic Club,29,8,8,9,14,1
+uefa.champions,2025,Napoli,30,8,8,9,15,1
+uefa.champions,2025,F.C. København,31,8,8,12,21,1
+uefa.champions,2025,Ajax Amsterdam,32,8,6,8,21,0.75
+uefa.champions,2025,Eintracht Frankfurt,33,8,4,10,21,0.5
+uefa.champions,2025,Slavia Prague,34,8,3,5,19,0.375
+uefa.champions,2025,Villarreal,35,8,1,5,18,0.125
+uefa.champions,2025,Kairat Almaty,36,8,1,7,22,0.125
+uefa.europa,2025,Lyon,1,8,21,18,5,2.625
+uefa.europa,2025,Aston Villa,2,8,21,14,6,2.625
+uefa.europa,2025,FC Midtjylland,3,8,19,18,8,2.375
+uefa.europa,2025,Real Betis,4,8,17,13,7,2.125
+uefa.europa,2025,FC Porto,5,8,17,13,7,2.125
+uefa.europa,2025,Braga,6,8,17,11,5,2.125
+uefa.europa,2025,SC Freiburg,7,8,17,10,4,2.125
+uefa.europa,2025,AS Roma,8,8,16,13,6,2
+uefa.europa,2025,Racing Genk,9,8,16,11,7,2
+uefa.europa,2025,Bologna,10,8,15,14,7,1.875
+uefa.europa,2025,VfB Stuttgart,11,8,15,15,9,1.875
+uefa.europa,2025,Ferencvaros,12,8,15,12,11,1.875
+uefa.europa,2025,Nottingham Forest,13,8,14,15,7,1.75
+uefa.europa,2025,Viktoria Plzen,14,8,14,8,3,1.75
+uefa.europa,2025,Red Star Belgrade,15,8,14,7,6,1.75
+uefa.europa,2025,Celta Vigo,16,8,13,15,11,1.625
+uefa.europa,2025,PAOK,17,8,12,17,14,1.5
+uefa.europa,2025,Lille,18,8,12,12,9,1.5
+uefa.europa,2025,Fenerbahce,19,8,12,10,7,1.5
+uefa.europa,2025,Panathinaikos,20,8,12,11,9,1.5
+uefa.europa,2025,Celtic,21,8,11,13,15,1.375
+uefa.europa,2025,Ludogorets Razgrad,22,8,10,12,15,1.25
+uefa.europa,2025,Dinamo Zagreb,23,8,10,12,16,1.25
+uefa.europa,2025,SK Brann,24,8,9,9,11,1.125
+uefa.europa,2025,Young Boys,25,8,9,10,16,1.125
+uefa.europa,2025,SK Sturm Graz,26,8,7,5,11,0.875
+uefa.europa,2025,FCSB,27,8,7,9,16,0.875
+uefa.europa,2025,Go Ahead Eagles,28,8,7,6,14,0.875
+uefa.europa,2025,Feyenoord Rotterdam,29,8,6,11,15,0.75
+uefa.europa,2025,FC Basel,30,8,6,9,13,0.75
+uefa.europa,2025,RB Salzburg,31,8,6,10,15,0.75
+uefa.europa,2025,Rangers,32,8,4,5,14,0.5
+uefa.europa,2025,Nice,33,8,3,7,15,0.375
+uefa.europa,2025,FC Utrecht,34,8,1,5,15,0.125
+uefa.europa,2025,Malmö FF,35,8,1,4,15,0.125
+uefa.europa,2025,Maccabi Tel-Aviv,36,8,1,2,22,0.125

@@ -1,21 +1,21 @@
 espn_id,team,short_name,abbrev,aliases
 359,Arsenal,Arsenal,ARS,Arsenal|Gunners|AFC
 362,Aston Villa,Aston Villa,AVL,Aston Villa|Villa|AVFC
-349,AFC Bournemouth,Bournemouth,BOU,AFC Bournemouth|Bournemouth|Cherries
+349,AFC Bournemouth,Bournemouth,BOU,AFC Bournemouth|Bournemouth|Cherries|Bournemouth AFC
 337,Brentford,Brentford,BRE,Brentford|Bees
-331,Brighton & Hove Albion,Brighton,BHA,Brighton & Hove Albion|Brighton and Hove Albion|Brighton|Seagulls
+331,Brighton & Hove Albion,Brighton,BHA,Brighton & Hove Albion|Brighton and Hove Albion|Brighton|Seagulls|Brighton and Hove Albion FC
 363,Chelsea,Chelsea,CHE,Chelsea|Blues|CFC
-388,Coventry City,Coventry,COV,Coventry City|Coventry|Sky Blues
+388,Coventry City,Coventry,COV,Coventry City|Coventry|Sky Blues|Coventry City FC
 384,Crystal Palace,C Palace,CRY,Crystal Palace|C Palace|Palace|CPFC
 368,Everton,Everton,EVE,Everton|Toffees|EFC
 370,Fulham,Fulham,FUL,Fulham|Cottagers|FFC
-306,Hull City,Hull,HUL,Hull City|Hull|Tigers
-373,Ipswich Town,Ipswich,IPS,Ipswich Town|Ipswich|Tractor Boys
-357,Leeds United,Leeds,LEE,Leeds United|Leeds|LUFC
+306,Hull City,Hull,HUL,Hull City|Hull|Tigers|Hull City AFC
+373,Ipswich Town,Ipswich,IPS,Ipswich Town|Ipswich|Tractor Boys|Ipswich Town FC
+357,Leeds United,Leeds,LEE,Leeds United|Leeds|LUFC|Leeds Utd
 364,Liverpool,Liverpool,LIV,Liverpool|LFC|Reds
-382,Manchester City,Man City,MNC,Manchester City|Man City|Man. City|City|MCFC
-360,Manchester United,Man United,MAN,Manchester United|Man United|Man Utd|Man. United|United|MUFC
-361,Newcastle United,Newcastle,NEW,Newcastle United|Newcastle|Toon|NUFC
-393,Nottingham Forest,Nottm Forest,NFO,Nottingham Forest|Nottm Forest|Notts Forest|Forest|NFFC
+382,Manchester City,Man City,MNC,Manchester City|Man City|Man. City|City|MCFC|Manchester City FC
+360,Manchester United,Man United,MAN,Manchester United|Man United|Man Utd|Man. United|United|MUFC|Manchester Utd|Man Utd.
+361,Newcastle United,Newcastle,NEW,Newcastle United|Newcastle|Toon|NUFC|Newcastle Utd
+393,Nottingham Forest,Nottm Forest,NFO,Nottingham Forest|Nottm Forest|Notts Forest|Forest|NFFC|Nott'ham Forest|Nottingham Forest FC
 366,Sunderland,Sunderland,SUN,Sunderland|Black Cats|SAFC
-367,Tottenham Hotspur,Spurs,TOT,Tottenham Hotspur|Tottenham|Spurs|THFC
+367,Tottenham Hotspur,Spurs,TOT,Tottenham Hotspur|Tottenham|Spurs|THFC|Tottenham Hotspur FC

@@ -1,0 +1,117 @@
+league,season,raw_name,rank,played,points,gf,ga,ppg
+eng.1,2024,Liverpool,1,38,84,86,41,2.210526315789474
+eng.1,2024,Arsenal,2,38,74,69,34,1.9473684210526316
+eng.1,2024,Manchester City,3,38,71,72,44,1.868421052631579
+eng.1,2024,Chelsea,4,38,69,64,43,1.8157894736842106
+eng.1,2024,Newcastle United,5,38,66,68,47,1.736842105263158
+eng.1,2024,Aston Villa,6,38,66,58,51,1.736842105263158
+eng.1,2024,Nottingham Forest,7,38,65,58,46,1.7105263157894737
+eng.1,2024,Brighton & Hove Albion,8,38,61,66,59,1.605263157894737
+eng.1,2024,AFC Bournemouth,9,38,56,58,46,1.4736842105263157
+eng.1,2024,Brentford,10,38,56,66,57,1.4736842105263157
+eng.1,2024,Fulham,11,38,54,54,54,1.4210526315789473
+eng.1,2024,Crystal Palace,12,38,53,51,51,1.394736842105263
+eng.1,2024,Everton,13,38,48,42,44,1.263157894736842
+eng.1,2024,West Ham United,14,38,43,46,62,1.131578947368421
+eng.1,2024,Manchester United,15,38,42,44,54,1.105263157894737
+eng.1,2024,Wolverhampton Wanderers,16,38,42,54,69,1.105263157894737
+eng.1,2024,Tottenham Hotspur,17,38,38,64,65,1
+eng.1,2024,Leicester City,18,38,25,33,80,0.6578947368421053
+eng.1,2024,Ipswich Town,19,38,22,36,82,0.5789473684210527
+eng.1,2024,Southampton,20,38,12,26,86,0.3157894736842105
+eng.2,2024,Leeds United,1,46,100,95,30,2.1739130434782608
+eng.2,2024,Burnley,2,46,100,69,16,2.1739130434782608
+eng.2,2024,Sheffield United,3,46,90,63,36,1.9565217391304348
+eng.2,2024,Sunderland,4,46,76,58,44,1.6521739130434783
+eng.2,2024,Coventry City,5,46,69,64,58,1.5
+eng.2,2024,Bristol City,6,46,68,59,55,1.4782608695652173
+eng.2,2024,Blackburn Rovers,7,46,66,53,48,1.434782608695652
+eng.2,2024,Millwall,8,46,66,47,49,1.434782608695652
+eng.2,2024,West Bromwich Albion,9,46,64,57,47,1.391304347826087
+eng.2,2024,Middlesbrough,10,46,64,64,56,1.391304347826087
+eng.2,2024,Swansea City,11,46,61,51,56,1.326086956521739
+eng.2,2024,Sheffield Wednesday,12,46,58,60,69,1.2608695652173914
+eng.2,2024,Norwich City,13,46,57,71,68,1.2391304347826086
+eng.2,2024,Watford,14,46,57,53,61,1.2391304347826086
+eng.2,2024,Queens Park Rangers,15,46,56,53,63,1.2173913043478262
+eng.2,2024,Portsmouth,16,46,54,58,71,1.173913043478261
+eng.2,2024,Oxford United,17,46,53,49,65,1.1521739130434783
+eng.2,2024,Stoke City,18,46,51,45,62,1.108695652173913
+eng.2,2024,Derby County,19,46,50,48,56,1.0869565217391304
+eng.2,2024,Preston North End,20,46,50,48,59,1.0869565217391304
+eng.2,2024,Hull City,21,46,49,44,54,1.065217391304348
+eng.2,2024,Luton Town,22,46,49,45,69,1.065217391304348
+eng.2,2024,Plymouth Argyle,23,46,46,51,88,1
+eng.2,2024,Cardiff City,24,46,44,48,73,0.9565217391304348
+uefa.champions,2024,Liverpool,1,8,21,17,5,2.625
+uefa.champions,2024,Barcelona,2,8,19,28,13,2.375
+uefa.champions,2024,Arsenal,3,8,19,16,3,2.375
+uefa.champions,2024,Internazionale,4,8,19,11,1,2.375
+uefa.champions,2024,Atlético Madrid,5,8,18,20,12,2.25
+uefa.champions,2024,Bayer Leverkusen,6,8,16,15,7,2
+uefa.champions,2024,Lille,7,8,16,17,10,2
+uefa.champions,2024,Aston Villa,8,8,16,13,6,2
+uefa.champions,2024,Atalanta,9,8,15,20,6,1.875
+uefa.champions,2024,Borussia Dortmund,10,8,15,22,12,1.875
+uefa.champions,2024,Real Madrid,11,8,15,20,12,1.875
+uefa.champions,2024,Bayern Munich,12,8,15,20,12,1.875
+uefa.champions,2024,AC Milan,13,8,15,14,11,1.875
+uefa.champions,2024,PSV Eindhoven,14,8,14,16,12,1.75
+uefa.champions,2024,Paris Saint-Germain,15,8,13,14,9,1.625
+uefa.champions,2024,Benfica,16,8,13,16,12,1.625
+uefa.champions,2024,AS Monaco,17,8,13,13,13,1.625
+uefa.champions,2024,Brest,18,8,13,10,11,1.625
+uefa.champions,2024,Feyenoord Rotterdam,19,8,13,18,21,1.625
+uefa.champions,2024,Juventus,20,8,12,9,7,1.5
+uefa.champions,2024,Celtic,21,8,12,13,14,1.5
+uefa.champions,2024,Manchester City,22,8,11,18,14,1.375
+uefa.champions,2024,Sporting CP,23,8,11,13,12,1.375
+uefa.champions,2024,Club Brugge,24,8,11,7,11,1.375
+uefa.champions,2024,Dinamo Zagreb,25,8,11,12,19,1.375
+uefa.champions,2024,VfB Stuttgart,26,8,10,13,17,1.25
+uefa.champions,2024,Shakhtar Donetsk,27,8,7,8,16,0.875
+uefa.champions,2024,Bologna,28,8,6,4,9,0.75
+uefa.champions,2024,Red Star Belgrade,29,8,6,13,22,0.75
+uefa.champions,2024,SK Sturm Graz,30,8,6,5,14,0.75
+uefa.champions,2024,Sparta Prague,31,8,4,7,21,0.5
+uefa.champions,2024,RB Leipzig,32,8,3,8,15,0.375
+uefa.champions,2024,Girona,33,8,3,5,13,0.375
+uefa.champions,2024,RB Salzburg,34,8,3,5,27,0.375
+uefa.champions,2024,Slovan Bratislava,35,8,0,7,27,0
+uefa.champions,2024,Young Boys,36,8,0,3,24,0
+uefa.europa,2024,Lazio,1,8,19,17,5,2.375
+uefa.europa,2024,Athletic Club,2,8,19,15,7,2.375
+uefa.europa,2024,Manchester United,3,8,18,16,9,2.25
+uefa.europa,2024,Tottenham Hotspur,4,8,17,17,9,2.125
+uefa.europa,2024,Eintracht Frankfurt,5,8,16,14,10,2
+uefa.europa,2024,Lyon,6,8,15,16,8,1.875
+uefa.europa,2024,Olympiacos,7,8,15,9,3,1.875
+uefa.europa,2024,Rangers,8,8,14,16,10,1.75
+uefa.europa,2024,Bodo/Glimt,9,8,14,14,11,1.75
+uefa.europa,2024,Anderlecht,10,8,14,14,12,1.75
+uefa.europa,2024,FCSB,11,8,14,10,9,1.75
+uefa.europa,2024,Ajax Amsterdam,12,8,13,16,8,1.625
+uefa.europa,2024,Real Sociedad,13,8,13,13,9,1.625
+uefa.europa,2024,Galatasaray,14,8,13,19,16,1.625
+uefa.europa,2024,AS Roma,15,8,12,10,6,1.5
+uefa.europa,2024,Viktoria Plzen,16,8,12,13,12,1.5
+uefa.europa,2024,Ferencvaros,17,8,12,15,15,1.5
+uefa.europa,2024,FC Porto,18,8,11,13,11,1.375
+uefa.europa,2024,AZ Alkmaar,19,8,11,13,13,1.375
+uefa.europa,2024,FC Midtjylland,20,8,11,9,9,1.375
+uefa.europa,2024,Union St.-Gilloise,21,8,11,8,8,1.375
+uefa.europa,2024,PAOK,22,8,10,12,10,1.25
+uefa.europa,2024,FC Twente,23,8,10,8,9,1.25
+uefa.europa,2024,Fenerbahce,24,8,10,9,11,1.25
+uefa.europa,2024,Braga,25,8,10,9,12,1.25
+uefa.europa,2024,IF Elfsborg,26,8,10,9,14,1.25
+uefa.europa,2024,TSG Hoffenheim,27,8,9,11,14,1.125
+uefa.europa,2024,Besiktas,28,8,9,10,15,1.125
+uefa.europa,2024,Maccabi Tel-Aviv,29,8,6,8,17,0.75
+uefa.europa,2024,Slavia Prague,30,8,5,7,11,0.625
+uefa.europa,2024,Malmö FF,31,8,5,10,17,0.625
+uefa.europa,2024,Rigas Futbola Skola,32,8,5,6,13,0.625
+uefa.europa,2024,Ludogorets Razgrad,33,8,4,4,11,0.5
+uefa.europa,2024,Dynamo Kyiv,34,8,4,5,18,0.5
+uefa.europa,2024,Nice,35,8,3,7,16,0.375
+uefa.europa,2024,FK Qarabag,36,8,3,6,20,0.375

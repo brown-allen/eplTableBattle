@@ -223,3 +223,95 @@ branch `main`, folder `/docs`.
 Note: this project lives inside a Box-synced folder. Box and `.git` generally
 coexist, but if you ever see index corruption, move the working copy outside Box
 and keep Box for the data files only.
+
+---
+
+# The prediction model
+
+A separate, optional piece: `run_model.R` builds a predicted 2026-27 table from
+historical results, xG, squad values and European form. It is independent of the
+competition itself — nothing on the site depends on it.
+
+```bash
+Rscript run_model.R            # cached inputs
+Rscript run_model.R --refresh  # re-fetch everything
+Rscript tune_model.R           # grid-search the weights
+```
+
+Outputs land in `data/model/`: `prediction.csv` (readable table),
+`prediction_full.csv` (every component), `backtest.csv`, and
+`prediction_code.txt` — a pick code in the picker's own format, so the model's
+table can be entered as an entry or diffed against one.
+
+## How it works
+
+Each component becomes a z-score across the twenty clubs; the z-scores are
+combined with `MODEL$weights` and the clubs ranked by the result. That keeps
+components comparable regardless of their units. It is a weighted composite,
+**not a fitted statistical model** — no coefficients are estimated from data.
+
+| Component | Weight | Source |
+|---|---|---|
+| Domestic results, 3 seasons, recency-weighted | 38% | ESPN |
+| xG difference per game, recency-weighted | 22% | FBref via worldfootballR |
+| Current squad market value (log) | 25% | Transfermarkt |
+| Champions/Europa League league-phase finish | 10% | ESPN |
+| Manager stability + injury burden | 5% | `data/model/adjustments.csv` |
+
+Weights are renormalised per club over the components that club actually has, so
+a promoted side with no xG record is scored on what it has rather than being
+handed a league-average xG it never earned. Championship seasons are discounted
+to `MODEL$championship_discount` of face value.
+
+## How well does it work?
+
+Badly enough to be worth saying plainly. Backtested over four seasons
+(2022-23 to 2025-26), each predicted using only the three seasons before it plus
+the squad values on record at that season's start:
+
+| | Mean error |
+|---|---|
+| Model | 3.40 places |
+| **Reusing last season's table** | **3.45 places** |
+| Random ordering | 7.00 places |
+
+The model beats the naive baseline by 0.05 places, over 80 club-seasons, with a
+95% confidence interval of −0.48 to +0.58 and p = 0.85. That is no difference at
+all.
+
+`tune_model.R` grid-searches 192 weight combinations scored by leave-one-season-out
+cross-validation. The best in-sample weights reach 3.20 places, but held out they
+give 3.48 — slightly *worse* than the baseline. The apparent gain is the search
+fitting noise in four seasons.
+
+So the honest summary: **this model is about as accurate as writing down last
+season's table**, and both are much better than guessing. That is not a bug in
+the implementation; last season's table is a famously strong baseline, and a
+season is only 380 matches of a high-variance sport.
+
+What the model does add over the naive baseline is a principled way to place
+promoted clubs, which last season's table cannot rank at all, and a defensible
+ordering with the reasoning attached rather than a hunch.
+
+## The manual inputs
+
+`data/model/adjustments.csv` has one row per club and two columns you set by
+hand, because no free source publishes them in machine-readable form:
+
+- `manager_stability` — roughly −1 (turmoil, new appointment) to +1 (settled)
+- `injury_burden` — roughly −1 (fully fit) to +1 (badly hit)
+
+Both default to 0. They are capped at `MODEL$adjust_scale` standard deviations,
+so they nudge rather than decide. Given the backtest above, treat them as a way
+to encode what you know that the data does not, not as precision instruments.
+
+## Data limitations worth knowing
+
+- **xG covers two full seasons, not three.** FBref and Understat both block
+  automated requests; the worldfootballR project's pre-scraped data repo is the
+  way in, and it was last updated 2025-09-16. So 2023-24 and 2024-25 are
+  complete, and 2025-26 has 40 matches. Each season's xG is weighted by its
+  coverage, so the partial season counts for about a ninth of a full one.
+- **European form uses league-phase finishing position only**, not knockout
+  progress.
+- Squad values are a single number per club and say nothing about squad balance.
