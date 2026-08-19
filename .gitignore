@@ -15,3 +15,26 @@ data/codes.txt
 *.knit.md
 *.utf8.md
 .DS_Store
+
+# ---------------------------------------------------------------------------
+# The prediction model is private.
+#
+# This repository is public and the other entrants can read it. Everything
+# below stays on your machine only: the model code, its inputs and outputs,
+# and MODEL.md, which documents it and contains its predicted table.
+#
+# NOTE: these files were tracked up to and including commit 33857f4, so they
+# remain readable in the repository's history on GitHub. Untracking stops
+# future exposure; it does not undo past exposure. See MODEL.md notes.
+# ---------------------------------------------------------------------------
+MODEL.md
+R/model.R
+R/model_config.R
+R/model_data.R
+R/manager_tenure.R
+R/simulate.R
+run_model.R
+tune_model.R
+run_simulation.R
+analyse_carryover.R
+data/model/
