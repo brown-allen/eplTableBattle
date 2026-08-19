@@ -136,14 +136,20 @@ the deadline passes — that is the tamper-evident record.
 
 ## Changing the scoring method
 
-The points method is deliberately pluggable, because it was not final when this
-was built. Three rules ship:
+The points method is pluggable. Four rules ship:
 
 | Method | Behaviour |
 |---|---|
-| `abs_diff` *(active)* | Sum of places between pick and reality. Lowest wins; a perfect table scores 0. |
+| `proximity5` *(active)* | 5 points for an exact call, one less per place out, floor 0. Highest wins; a perfect table scores 100. |
+| `abs_diff` | Sum of places between pick and reality. Lowest wins; a perfect table scores 0. |
 | `squared_diff` | Same, squared. Punishes single wild misses far harder. Lowest wins. |
-| `banded` | Points per club by closeness, plus champion and relegation bonuses. Highest wins. |
+| `banded` | Arbitrary points per closeness band, see `banded_points`. Highest wins. |
+
+On top of the per-club points, four end-of-season bonuses apply from
+`CONFIG$bonus_start`: +5 for the champion, +5 for the relegated three in any
+order, +1 per club correctly placed inside the top four, and +1 per club
+correctly placed inside the bottom three. Maximum bonus +17, so the ceiling is
+117. Totals read 0 until `CONFIG$scoring_start`.
 
 Switching is one line — `scoring_method` in `R/config.R`. The leaderboard,
 per-entrant tables, sort direction, rules page prose and worked example all
