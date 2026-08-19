@@ -6,7 +6,8 @@
 #   Rscript run_model.R --refresh    re-fetch everything
 
 source("R/config.R"); source("R/teams.R")
-source("R/model_config.R"); source("R/model_data.R"); source("R/model.R")
+source("R/model_config.R"); source("R/model_data.R")
+source("R/manager_tenure.R"); source("R/model.R")
 suppressPackageStartupMessages({ library(dplyr); library(readr) })
 
 refresh <- "--refresh" %in% commandArgs(TRUE)
@@ -26,6 +27,27 @@ xg      <- fetch_xg(refresh = refresh)      |> mutate(team = resolve_keep(raw_na
 values  <- fetch_squad_values(refresh = refresh) |> mutate(team = resolve_keep(raw_name))
 adjust  <- if (file.exists("data/model/adjustments.csv"))
              read_csv("data/model/adjustments.csv", show_col_types = FALSE) else NULL
+managers <- if (file.exists("data/model/managers.csv"))
+             read_csv("data/model/managers.csv", show_col_types = FALSE) else NULL
+injuries <- if (file.exists("data/model/injuries.csv"))
+             read_csv("data/model/injuries.csv", show_col_types = FALSE) else NULL
+chronic  <- if (file.exists("data/model/injuries_chronic.csv"))
+             read_csv("data/model/injuries_chronic.csv", show_col_types = FALSE) else NULL
+
+if (!is.null(managers)) {
+  missing_mgr <- managers$team[is.na(managers$appointed)]
+  message(sprintf("  managers: %d of %d with an appointment date",
+                  sum(!is.na(managers$appointed)), nrow(managers)))
+  if (length(missing_mgr)) {
+    message("    NO DATE, scored neutral on the manager term: ",
+            paste(missing_mgr, collapse = ", "))
+  }
+}
+if (!is.null(injuries)) {
+  message(sprintf("  injuries: %d clubs, %.1f absences on average (range %d-%d)",
+                  nrow(injuries), mean(injuries$injured),
+                  min(injuries$injured), max(injuries$injured)))
+}
 
 message(sprintf("  history: %d league-seasons, %d rows",
                 nrow(distinct(history, league, season)), nrow(history)))
@@ -78,7 +100,8 @@ if (is.null(bt)) {
 ## --- the prediction --------------------------------------------------------
 
 message("\n== 2026-27 prediction ==")
-pred <- predict_table(CLUBS, history, xg = xg, values = values, adjust = adjust)
+pred <- predict_table(CLUBS, history, xg = xg, values = values, adjust = adjust,
+                      managers = managers, injuries = injuries, chronic = chronic)
 
 w <- attr(pred, "weights_used")
 message("  weights used: ",
@@ -90,10 +113,34 @@ out <- pred |>
     Index = round(index, 3),
     PPG = round(domestic_ppg, 2),
     xGD = ifelse(is.na(xgd_pg), NA, round(xgd_pg, 2)),
-    `Value €m` = round(squad_value / 1e6),
-    Europe = round(europe, 2)
+    `Val€m` = round(squad_value / 1e6),
+    Eur = round(europe, 2),
+    MgrY = ifelse(is.na(tenure_years), NA, round(tenure_years, 1)),
+    Inj = injured,
+    Adj = round(adjust_raw, 2)
   )
 print(as.data.frame(out), row.names = FALSE)
+
+## How much is the adjustment component actually worth? Re-rank without it
+## and compare, so the answer is measured rather than assumed.
+no_adj <- predict_table(CLUBS, history, xg = xg, values = values,
+                        adjust = NULL, managers = NULL, injuries = NULL,
+                        chronic = NULL) |>
+  select(team, pos_without = position)
+moves <- pred |> select(team, pos_with = position) |>
+  left_join(no_adj, by = "team") |>
+  mutate(shift = pos_without - pos_with) |>
+  filter(shift != 0) |> arrange(desc(abs(shift)))
+
+message(sprintf("\nmanager + injury adjustment moved %d of %d clubs; largest shift %d place(s)",
+                nrow(moves), length(CLUBS),
+                if (nrow(moves)) max(abs(moves$shift)) else 0L))
+if (nrow(moves)) {
+  for (i in seq_len(min(6, nrow(moves)))) {
+    message(sprintf("   %-24s %2d -> %2d  (%+d)", moves$team[i],
+                    moves$pos_without[i], moves$pos_with[i], moves$shift[i]))
+  }
+}
 
 write_csv(pred, "data/model/prediction_full.csv")
 write_csv(out,  "data/model/prediction.csv")

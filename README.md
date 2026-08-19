@@ -262,7 +262,7 @@ components comparable regardless of their units. It is a weighted composite,
 | xG difference per game, recency-weighted | 22% | FBref via worldfootballR |
 | Current squad market value (log) | 25% | Transfermarkt |
 | Champions/Europa League league-phase finish | 10% | ESPN |
-| Manager stability + injury burden | 5% | `data/model/adjustments.csv` |
+| Manager tenure + injury burden | 5% | Premier League site, Premier Injuries, BBC, Sports Gazette |
 
 Weights are renormalised per club over the components that club actually has, so
 a promoted side with no xG record is scored on what it has rather than being
@@ -299,17 +299,68 @@ What the model does add over the naive baseline is a principled way to place
 promoted clubs, which last season's table cannot rank at all, and a defensible
 ordering with the reasoning attached rather than a hunch.
 
-## The manual inputs
+## Manager tenure and injuries
 
-`data/model/adjustments.csv` has one row per club and two columns you set by
-hand, because no free source publishes them in machine-readable form:
+Both are now computed rather than typed, from `data/model/managers.csv`,
+`data/model/injuries.csv` and `data/model/injuries_chronic.csv`. Each file has a
+`_SOURCE.txt` beside it recording where the numbers came from and when.
 
-- `manager_stability` — roughly −1 (turmoil, new appointment) to +1 (settled)
-- `injury_burden` — roughly −1 (fully fit) to +1 (badly hit)
+### The tenure curve
 
-Both default to 0. They are capped at `MODEL$adjust_scale` standard deviations,
-so they nudge rather than decide. Given the backtest above, treat them as a way
-to encode what you know that the data does not, not as precision instruments.
+`tenure_score()` in `R/manager_tenure.R` maps an appointment date to a score:
+
+```
+score(t) = new_boost * exp(-t/tau_new) + long_max * (1 - exp(-t/tau_long)) - baseline
+```
+
+The first term is the new-manager bounce, the second is accumulated stability,
+and `baseline` pulls the middle below zero. With the shipped parameters:
+
+| Tenure | Score |
+|---|---|
+| day one | **+0.12** — the new-appointment bump |
+| 3 months | −0.03 |
+| **6 months** | **−0.06** — the trough |
+| 1 year | +0.01 |
+| 2 years | +0.16 |
+| 5 years | +0.36 |
+| long run | +0.42 |
+
+One continuous function rather than banded categories, so a manager appointed a
+week before another scores a week differently, not a whole band differently.
+Tune it via `MODEL$tenure` in `R/model_config.R`.
+
+### Injuries
+
+Three measures, each z-scored separately before being combined — a rate near 8,
+a day-count near 400 and a headcount near 5 cannot be averaged raw:
+
+| Measure | Source | Coverage |
+|---|---|---|
+| Injuries per 1000 min, 2021-24 | Sports Gazette / Premier Injuries | 12 of the 20 |
+| Days lost, 2025-26 to 22 rounds | BBC Sport / Premier Injuries | 17 of the 20 |
+| Absences right now | premierinjuries.com, 18 Aug 2026 | all 20 |
+
+The first two form a *chronic* score, blended with the *current* snapshot via
+`MODEL$injury_mix`. A club with no chronic record — the three promoted sides —
+is carried on the snapshot alone rather than being assigned a league-average
+proneness it has not earned.
+
+### What it is worth
+
+Measured, not assumed: `run_model.R` re-ranks with the component switched off
+and reports the difference. As it stands the manager and injury terms together
+move **3 of 20 clubs, by at most 2 places**. That is the intended size — the
+whole prize above a naive baseline is about one place, so a component that
+reordered the table would be overclaiming.
+
+### Overriding by hand
+
+`data/model/adjustments.csv` still takes `manager_stability` and
+`injury_burden` per club, roughly −1 to +1. A non-zero value **replaces** the
+computed one for that club, on the assumption that if you typed it you know
+something the sources do not. Zero means "not set", so the file can stay mostly
+empty.
 
 ## Data limitations worth knowing
 
@@ -321,3 +372,11 @@ to encode what you know that the data does not, not as precision instruments.
 - **European form uses league-phase finishing position only**, not knockout
   progress.
 - Squad values are a single number per club and say nothing about squad balance.
+- **Newcastle United had no manager listed** when the tenure data was taken, so
+  they score neutral on the manager term. Fill in `data/model/managers.csv` and
+  re-run once that is settled.
+- The current injury snapshot is a **headcount taken on one pre-season day**. It
+  does not weigh a first-choice striker out until Christmas against a reserve
+  full-back missing a fortnight.
+- The 2021-24 chronic rates cover only clubs continuously in the league across
+  that window, and the 2025-26 figures stop at 22 rounds.

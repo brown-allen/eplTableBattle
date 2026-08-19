@@ -41,9 +41,31 @@ MODEL <- list(
   ## rank is turned into a 0-1 score and multiplied by these.
   europe_weight = c(uefa.champions = 1.0, uefa.europa = 0.55),
 
-  ## How far the manual adjustments can move a club, in standard deviations
-  ## of the final index. Deliberately small: these are nudges, not opinions.
-  adjust_scale = 0.35,
+  ## Manager tenure curve. See R/manager_tenure.R for the shape.
+  ##   new_boost  size of the new-appointment bounce at day one
+  ##   tau_new    how fast that bounce decays, in years
+  ##   long_max   what fully-established tenure is eventually worth
+  ##   tau_long   how fast stability accumulates, in years
+  ##   baseline   pulls the middle of the curve below zero
+  tenure = list(
+    new_boost = 0.40,
+    tau_new   = 0.28,
+    long_max  = 0.70,
+    tau_long  = 2.00,
+    baseline  = 0.28
+  ),
+
+  ## How the two adjustment inputs are mixed before z-scoring.
+  adjust_mix = c(manager = 0.5, injury = 0.5),
+
+  ## Within the injury term: how much is the club's chronic record versus who
+  ## is actually unavailable right now.
+  injury_mix = c(chronic = 0.5, current = 0.5),
+
+  ## The adjustment component is z-scored like every other component, so the
+  ## 5% weight in `weights` means what it appears to mean. It is a ranking of
+  ## clubs against each other, not an absolute scale.
+  adjust_scale = 1.0,
 
   user_agent = paste("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
                      "AppleWebKit/537.36 (KHTML, like Gecko)",

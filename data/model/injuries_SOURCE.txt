@@ -1,0 +1,8 @@
+Source: https://www.premierinjuries.com/injury-table.php
+Retrieved: 2026-08-18 (page's own stamp: 18 Aug 26 22:32 UK)
+
+This is a headcount of listed absences, nothing more. It does not distinguish
+a first-choice striker out until Christmas from a reserve full-back missing a
+fortnight, and it is a single pre-season snapshot rather than a burden carried
+across a campaign. Treat it as a rough signal and override by hand in
+data/model/adjustments.csv where you know better.

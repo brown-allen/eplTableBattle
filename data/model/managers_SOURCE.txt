@@ -1,0 +1,7 @@
+Source: https://www.premierleague.com/en/managers
+Retrieved: 2026-08-18
+
+Newcastle United had no manager listed at the time of retrieval. That row is
+left blank deliberately rather than guessed. The model treats a blank as
+"unknown" and scores the club on its other components; it does not silently
+assume a value. If you know the appointment date, fill it in and re-run.

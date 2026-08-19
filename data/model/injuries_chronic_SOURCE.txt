@@ -1,0 +1,21 @@
+Two sources, both per-club, neither covering all twenty 2026-27 clubs.
+
+rate_per1000min_2021_24
+  https://sportsgazette.co.uk/who-are-the-most-injury-prone-clubs-in-the-premier-league/
+  Published 20 March 2025. Injuries per 1000 minutes, averaged over 2021-2024,
+  from Premier Injuries data. Only clubs continuously in the Premier League
+  across that window were analysed -- 14 of them, of which 12 are in the
+  2026-27 league. Figures read from the article's underlying chart data.
+
+days_lost_2025_26 / injuries_2025_26
+  https://www.bbc.com/sport/football/articles/c70l9y3p893o
+  Published 21 January 2026, compiled with Ben Dinnery of premierinjuries.com.
+  Days lost and separate injuries through 22 rounds of 2025-26. Covers that
+  season's twenty clubs, so the three promoted sides are absent and Wolves,
+  West Ham and Burnley are excluded here as they are not in 2026-27.
+
+Blank means the club was not covered by that source. The model scores each
+club on whichever measures it has rather than assuming a value.
+
+Coventry City, Hull City and Ipswich Town have no top-flight injury record at
+all and are scored on the current snapshot only.

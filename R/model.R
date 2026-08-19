@@ -112,6 +112,93 @@ component_europe <- function(clubs, history, seasons = MODEL$seasons) {
     mutate(europe = coalesce(europe, 0))
 }
 
+#' Manager stability and injury burden, combined into one small adjustment.
+#'
+#' The two inputs live on wildly different scales -- a tenure score spans about
+#' half a point, an injury headcount spans two to eleven -- so each is z-scored
+#' on its own before they are mixed. Otherwise the injury count would swamp the
+#' manager term simply by having bigger numbers.
+#'
+#' Anything set by hand in `manual` overrides the computed value for that club,
+#' on the assumption that if you bothered to type it you know something the
+#' sources do not.
+component_adjust <- function(clubs, managers = NULL, injuries = NULL,
+                             chronic = NULL, manual = NULL,
+                             ref_date = Sys.Date(),
+                             mix = MODEL$adjust_mix,
+                             inj_mix = MODEL$injury_mix) {
+
+  d <- tibble(team = clubs)
+
+  ## --- manager tenure ---
+  d <- d |> left_join(
+    if (is.null(managers)) tibble(team = character(), appointed = as.Date(character()))
+    else managers |> select(team, appointed),
+    by = "team") |>
+    mutate(appointed = as.Date(appointed),
+           tenure_years = as.numeric(as.Date(ref_date) - appointed) / 365.25,
+           tenure_raw = tenure_score(appointed, ref_date))
+
+  ## --- injuries: a current snapshot plus two measures of chronic proneness ---
+  d <- d |> left_join(
+    if (is.null(injuries)) tibble(team = character(), injured = integer())
+    else injuries |> select(team, injured), by = "team")
+
+  ch <- if (is.null(chronic)) {
+    tibble(team = character(), rate_per1000min_2021_24 = double(),
+           days_lost_2025_26 = double())
+  } else {
+    chronic |> select(any_of(c("team", "rate_per1000min_2021_24",
+                               "days_lost_2025_26")))
+  }
+  d <- d |> left_join(ch, by = "team")
+  for (k in c("rate_per1000min_2021_24", "days_lost_2025_26")) {
+    if (!k %in% names(d)) d[[k]] <- NA_real_
+  }
+
+  ## Each measure is z-scored on its own -- a rate near 8, a day count near 400
+  ## and a headcount near 5 cannot be averaged raw. The chronic score is the
+  ## mean of whichever chronic measures a club has; a club with neither (a
+  ## promoted side) gets NA and is carried on the snapshot alone.
+  z_rate <- .z(d$rate_per1000min_2021_24)
+  z_days <- .z(d$days_lost_2025_26)
+  d$z_chronic <- rowMeans(cbind(z_rate, z_days), na.rm = TRUE)
+  d$z_chronic[is.nan(d$z_chronic)] <- NA_real_
+  d$z_current <- .z(as.numeric(d$injured))
+
+  ## Blend chronic and current, renormalising per club over what exists.
+  wc <- ifelse(is.na(d$z_chronic), 0, inj_mix[["chronic"]])
+  wn <- ifelse(is.na(d$z_current), 0, inj_mix[["current"]])
+  den <- wc + wn
+  d$injury_z <- ifelse(den > 0,
+                       (coalesce(d$z_chronic, 0) * wc +
+                        coalesce(d$z_current, 0) * wn) / den, 0)
+
+  ## --- manual overrides win ---
+  man <- if (is.null(manual)) {
+    tibble(team = character(), manager_stability = double(), injury_burden = double())
+  } else {
+    manual |> select(any_of(c("team", "manager_stability", "injury_burden")))
+  }
+  d <- d |> left_join(man, by = "team")
+  if (!"manager_stability" %in% names(d)) d$manager_stability <- 0
+  if (!"injury_burden" %in% names(d))     d$injury_burden <- 0
+
+  d <- d |> mutate(
+    z_tenure = .z(tenure_raw),
+    mgr_term = ifelse(!is.na(manager_stability) & manager_stability != 0,
+                      manager_stability, z_tenure),
+    inj_term = ifelse(!is.na(injury_burden) & injury_burden != 0,
+                      injury_burden, injury_z),
+    mgr_term = coalesce(mgr_term, 0),
+    inj_term = coalesce(inj_term, 0),
+    adjust_raw = mix[["manager"]] * mgr_term - mix[["injury"]] * inj_term
+  )
+
+  d |> select(team, appointed, tenure_years, tenure_raw, injured,
+              z_chronic, z_current, mgr_term, inj_term, adjust_raw)
+}
+
 ## --- the model -------------------------------------------------------------
 
 #' Build a predicted table.
@@ -123,7 +210,9 @@ component_europe <- function(clubs, history, seasons = MODEL$seasons) {
 #' @param adjust     manual manager/injury table, or NULL
 #' @param weights    component weights; renormalised over what is present
 predict_table <- function(clubs, history, xg = NULL, values = NULL,
-                          adjust = NULL, seasons = MODEL$seasons,
+                          adjust = NULL, managers = NULL, injuries = NULL,
+                          chronic = NULL, ref_date = Sys.Date(),
+                          seasons = MODEL$seasons,
                           weights = MODEL$weights) {
 
   dom <- component_domestic(clubs, history, seasons)
@@ -137,22 +226,14 @@ predict_table <- function(clubs, history, xg = NULL, values = NULL,
     mutate(log_value = ifelse(is.na(squad_value) | squad_value <= 0,
                               NA_real_, log10(squad_value)))
 
-  adj <- tibble(team = clubs) |>
-    left_join(if (is.null(adjust))
-                tibble(team = character(), manager_stability = double(),
-                       injury_burden = double())
-              else adjust, by = "team") |>
-    mutate(manager_stability = coalesce(manager_stability, 0),
-           injury_burden     = coalesce(injury_burden, 0),
-           ## a heavier injury burden should push a club down
-           adjust_raw = manager_stability - injury_burden)
+  adj <- component_adjust(clubs, managers = managers, injuries = injuries,
+                          chronic = chronic, manual = adjust, ref_date = ref_date)
 
   d <- tibble(team = clubs) |>
     left_join(dom, by = "team") |> left_join(xgc, by = "team") |>
     left_join(eur, by = "team") |>
     left_join(select(val, team, squad_value, log_value), by = "team") |>
-    left_join(select(adj, team, manager_stability, injury_burden, adjust_raw),
-              by = "team")
+    left_join(adj, by = "team")
 
   ## z-scores; a component with nothing in it contributes nothing
   d <- d |> mutate(
@@ -160,7 +241,7 @@ predict_table <- function(clubs, history, xg = NULL, values = NULL,
     z_xg       = .z(xgd_pg),
     z_value    = .z(log_value),
     z_europe   = .z(europe),
-    z_adjust   = adjust_raw * MODEL$adjust_scale
+    z_adjust   = .z(adjust_raw) * MODEL$adjust_scale
   )
 
   ## Per-club weight renormalisation. A club with no xG on record (a promoted
