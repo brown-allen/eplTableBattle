@@ -67,6 +67,20 @@ MODEL <- list(
   ## clubs against each other, not an absolute scale.
   adjust_scale = 1.0,
 
+  ## --- simulation ---------------------------------------------------------
+  ## The model's own backtested mean absolute error, from run_model.R. Noise is
+  ## calibrated to this, so simulated seasons scatter as widely as the model
+  ## actually misses. Update it if the backtest number changes.
+  backtest_mae = 3.40,
+
+  ## 10,000 keeps Monte Carlo error on any probability under +/- 0.5 points,
+  ## which is finer than the model's real accuracy deserves.
+  n_sims = 10000,
+
+  ## Percentiles of "distance from the point prediction" at which the three
+  ## presented tables are drawn.
+  sim_percentiles = c(0.15, 0.50, 0.90),
+
   user_agent = paste("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
                      "AppleWebKit/537.36 (KHTML, like Gecko)",
                      "Chrome/126.0.0.0 Safari/537.36")

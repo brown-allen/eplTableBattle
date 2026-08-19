@@ -39,8 +39,14 @@ if (!is.null(managers)) {
   message(sprintf("  managers: %d of %d with an appointment date",
                   sum(!is.na(managers$appointed)), nrow(managers)))
   if (length(missing_mgr)) {
-    message("    NO DATE, scored neutral on the manager term: ",
-            paste(missing_mgr, collapse = ", "))
+    overridden <- if (is.null(adjust)) character(0) else
+      adjust$team[!is.na(adjust$manager_stability) & adjust$manager_stability != 0]
+    unset <- setdiff(missing_mgr, overridden)
+    covered <- intersect(missing_mgr, overridden)
+    if (length(covered)) message("    no date, but set by hand: ",
+                                 paste(covered, collapse = ", "))
+    if (length(unset)) message("    NO DATE, scored neutral: ",
+                               paste(unset, collapse = ", "))
   }
 }
 if (!is.null(injuries)) {

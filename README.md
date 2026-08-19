@@ -362,6 +362,58 @@ computed one for that club, on the assumption that if you typed it you know
 something the sources do not. Zero means "not set", so the file can stay mostly
 empty.
 
+## Simulating the season
+
+A single predicted table is a claim no season will ever match. `run_simulation.R`
+turns the strength index into a distribution instead:
+
+```bash
+Rscript run_simulation.R          # 10,000 seasons
+Rscript run_simulation.R 50000    # more, if you want tighter probabilities
+```
+
+### How much noise, and why that much
+
+The width of the spread is measured, not chosen. Two findings pin it down:
+
+- `analyse_carryover.R` puts a season's table at roughly **76% signal, 24% luck**,
+  so even a model that knew every club's true strength would miss by 2.34 places.
+- `run_model.R`'s backtest puts **this** model at **3.40 places** against seasons
+  it had not seen.
+
+The second is the calibration target, because it already contains the first plus
+everything the model gets wrong. `calibrate_noise()` solves for the latent
+correlation whose implied error equals it — **r = 0.740, or 0.91 SD of noise per
+1 SD of the index**. Nearly as much luck as signal. Simulating any tighter would
+claim an accuracy the backtest denies.
+
+### How many simulations
+
+10,000, which holds Monte Carlo error on any probability under **±0.5 points** —
+already finer than the model's real accuracy deserves. Set `MODEL$n_sims` or pass
+a number on the command line.
+
+Each run checks that the probability columns sum to exactly one champion, four
+Champions League places and three relegations. A permutation that failed to would
+mean the simulation was generating impossible seasons.
+
+### The three tables
+
+Picked at the 15th, 50th and 90th percentiles of *how far a season strays from
+the point prediction* (`MODEL$sim_percentiles`). Each is one real simulated
+season, not an average of many — averaging simulations produces a table no season
+would ever produce. They are drawn at fixed percentiles rather than chosen by
+eye, so they span the range honestly rather than being the three most
+entertaining.
+
+Worth noticing: even the calm 15th-percentile season still moves clubs about 2.7
+places on average. On this model's own numbers, there is no such thing as a
+season that goes to form.
+
+Outputs: `simulation_summary.csv` (per-club mean, 90% range, title/top-4/
+relegation probabilities), `simulated_tables.csv`, and
+`simulated_tables_codes.txt` in the picker's code format.
+
 ## Data limitations worth knowing
 
 - **xG covers two full seasons, not three.** FBref and Understat both block
