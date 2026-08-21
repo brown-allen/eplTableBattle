@@ -21,8 +21,8 @@ payload <- list(
   teams = lapply(seq_len(nrow(TEAMS)), function(i) {
     list(name = TEAMS$team[i], abbrev = TEAMS$abbrev[i], short = TEAMS$short_name[i])
   }),
-  deadline = format(CONFIG$lock_time, "%Y-%m-%dT%H:%M:%S%z"),
-  locked = is_locked()
+  deadline = format(CONFIG$submission_deadline, "%Y-%m-%dT%H:%M:%S%z"),
+  locked = submissions_closed()
 )
 cat("<script>\nconst PICKER_DATA = ",
     jsonlite::toJSON(payload, auto_unbox = TRUE), ";\n</script>\n", sep = "")

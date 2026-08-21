@@ -10,8 +10,8 @@ cat(as.character(lock_banner()))
 ```
 
 Each table below appears as submitted,
-`r if (is_locked()) "fixed at" else "and will be fixed at"`
-**`r fmt_when(CONFIG$lock_time)`**. The *Actual* column is where that club sits
+`r if (submissions_closed()) "fixed at" else "and will be fixed at"`
+**`r fmt_when(CONFIG$submission_deadline)`**. The *Actual* column is where that club sits
 in the live table right now, and *Off by* is the damage.
 
 ```{r sections, results='asis'}

@@ -13,8 +13,10 @@ source("R/predictions.R")
 
 message("== EPL Table Battle build ==")
 message("Season:   ", CONFIG$season_label)
-message("Deadline: ", format(CONFIG$lock_time, "%Y-%m-%d %H:%M %Z"),
-        if (is_locked()) "  [LOCKED]" else "  [open]")
+message("Entries due: ", format(CONFIG$submission_deadline, "%Y-%m-%d %H:%M %Z"),
+        if (submissions_closed()) "  [closed to entrants]" else "  [open]")
+message("Freeze at:   ", format(CONFIG$lock_time, "%Y-%m-%d %H:%M %Z"),
+        if (is_locked()) "  [LOCKED - edits ignored]" else "  [build still accepts edits]")
 message("Scoring:  ", CONFIG$scoring_method,
         " (", score_direction(), " wins)")
 message("Source:   ", CONFIG$data_source,
@@ -60,5 +62,27 @@ if (nzchar(key)) {
   message("Secrets:  key not present anywhere in docs/ (", length(published),
           " files checked)")
 }
+
+## 5. Refuse to ship a build containing the private model ------------------
+## render_site() renders every root-level .md and ignores .gitignore, so a
+## file added later could be published without anyone noticing. This checks
+## the output rather than trusting the config.
+private_markers <- c("Transfermarkt", "worldfootballR", "squad market value",
+                     "P(win)", "prediction model")
+published <- list.files("docs", recursive = TRUE, full.names = TRUE)
+published <- published[!grepl("\\.(png|jpg|jpeg|gif|woff2?|ttf|eot|map)$", published)]
+hits <- Filter(function(f) {
+  txt <- readLines(f, warn = FALSE)
+  any(vapply(private_markers, function(m) any(grepl(m, txt, fixed = TRUE)), logical(1)))
+}, published)
+stray <- Filter(file.exists, c("MODEL.html", "docs/MODEL.html"))
+
+if (length(hits) || length(stray)) {
+  stop("Private model content found in the build: ",
+       paste(c(hits, stray), collapse = ", "),
+       ". Nothing has been published. Keep the source underscore-prefixed so ",
+       "render_site() skips it, then delete the stray output.", call. = FALSE)
+}
+message("Private:  no model content in docs/ (", length(published), " files checked)")
 
 message("Done. Open docs/index.html")

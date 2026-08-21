@@ -27,7 +27,7 @@ data/codes.txt
 # remain readable in the repository's history on GitHub. Untracking stops
 # future exposure; it does not undo past exposure. See MODEL.md notes.
 # ---------------------------------------------------------------------------
-MODEL.md
+_MODEL.md
 R/model.R
 R/model_config.R
 R/model_data.R
@@ -38,3 +38,10 @@ tune_model.R
 run_simulation.R
 analyse_carryover.R
 data/model/
+R/compete.R
+run_compete.R
+# render_site() writes MODEL.html at the project root as well as under docs/,
+# so both paths need covering. The leading-underscore source file is skipped
+# by render_site; these two lines catch anything a stale build leaves behind.
+MODEL.html
+docs/MODEL.html

@@ -11,7 +11,7 @@ cat(as.character(lock_banner()))
 
 `r nrow(PLAYERS)` friends are predicting the order of the
 `r CONFIG$season_label` Premier League table.
-`r if (is_locked()) "Tables are fixed. The league now spends nine months telling them how wrong they were." else "Once the deadline passes their tables are fixed, and the league spends nine months telling them how wrong they were."`
+`r if (submissions_closed()) "Tables are fixed. The league now spends nine months telling them how wrong they were." else "Once the deadline passes their tables are fixed, and the league spends nine months telling them how wrong they were."`
 
 ---
 

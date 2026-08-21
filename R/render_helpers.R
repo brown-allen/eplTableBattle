@@ -32,7 +32,7 @@ fmt_when <- function(x, tz = CONFIG$timezone) {
 
 #' Countdown / lock banner shown at the top of the site.
 lock_banner <- function(now = Sys.time()) {
-  deadline <- CONFIG$lock_time
+  deadline <- CONFIG$submission_deadline
   if (now >= deadline) {
     div(class = "banner banner-locked",
         strong("Predictions are locked."),

@@ -13,13 +13,13 @@ bottom. No partial entries, no ties, every club used exactly once.
 
 ## The deadline
 
-Entries `r if (is_locked()) "were due" else "are due"`
-**`r fmt_when(CONFIG$lock_time)`**.
+Entries `r if (submissions_closed()) "were due" else "are due"`
+**`r fmt_when(CONFIG$submission_deadline)`**.
 
-At that instant `data/predictions.csv` is snapshotted to
-`data/predictions_frozen.csv`, and every build after the deadline renders the
-snapshot rather than the working file. If the working file is edited afterwards the build emits a warning and
-ignores the change, so a late edit cannot quietly reach the site.
+Once entries close they are snapshotted to `data/predictions_frozen.csv`, and
+that snapshot becomes the record the site renders. If the working file is edited
+afterwards the build emits a warning and ignores the change, so a late edit
+cannot quietly reach the site.
 
 ## Scoring
 

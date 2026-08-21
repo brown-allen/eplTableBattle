@@ -282,13 +282,13 @@ No partial entries, no ties, every club used exactly once.</p>
 </div>
 <div id="the-deadline" class="section level2">
 <h2>The deadline</h2>
-<p>Entries are due <strong>Thursday 20 August 2026, 23:59
+<p>Entries were due <strong>Thursday 20 August 2026, 23:59
 EDT</strong>.</p>
-<p>At that instant <code>data/predictions.csv</code> is snapshotted to
-<code>data/predictions_frozen.csv</code>, and every build after the
-deadline renders the snapshot rather than the working file. If the
-working file is edited afterwards the build emits a warning and ignores
-the change, so a late edit cannot quietly reach the site.</p>
+<p>Once entries close they are snapshotted to
+<code>data/predictions_frozen.csv</code>, and that snapshot becomes the
+record the site renders. If the working file is edited afterwards the
+build emits a warning and ignores the change, so a late edit cannot
+quietly reach the site.</p>
 </div>
 <div id="scoring" class="section level2">
 <h2>Scoring</h2>

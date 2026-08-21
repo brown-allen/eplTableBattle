@@ -17,9 +17,18 @@ CONFIG <- list(
   fd_key_env     = "FOOTBALL_DATA_API_KEY",
   espn_league    = "eng.1",           # ESPN league slug for the Premier League
 
-  ## Lock: predictions are frozen at this instant. Stored as US/Eastern.
-  ## 11:59 pm Eastern on Thursday, August 20, 2026.
-  lock_time      = as.POSIXct("2026-08-20 23:59:00", tz = "America/New_York"),
+  ## Two different instants, deliberately.
+  ##
+  ## submission_deadline is the one entrants are held to and the only one the
+  ## site ever shows them: get your code to the commissioner by here.
+  ##
+  ## lock_time is when the build stops accepting changes to predictions.csv.
+  ## It sits later purely so the commissioner has a window to ingest the last
+  ## codes, rebuild and check the result before anything is frozen. It is
+  ## never displayed; it is not an extension, and entrants are not told about
+  ## it because it is not theirs to use.
+  submission_deadline = as.POSIXct("2026-08-20 23:59:00", tz = "America/New_York"),
+  lock_time           = as.POSIXct("2026-08-21 10:00:00", tz = "America/New_York"),
 
   ## Scoring ---------------------------------------------------------------
   ## Which scoring rule to use. See R/scoring.R for the implementations.
@@ -73,7 +82,11 @@ fd_api_key <- function() Sys.getenv(CONFIG$fd_key_env, "")
 has_fd_key <- function() nzchar(fd_api_key())
 
 ## Derived -----------------------------------------------------------------
-## TRUE once predictions can no longer be changed.
+## TRUE once entrants may no longer submit. This is what every page shows.
+submissions_closed <- function(now = Sys.time()) now >= CONFIG$submission_deadline
+
+## TRUE once the build itself stops accepting edits to predictions.csv.
+## Used by enforce_lock() only -- never for anything an entrant reads.
 is_locked <- function(now = Sys.time()) now >= CONFIG$lock_time
 
 ## TRUE once per-club points count. Before this, every total reads 0.
