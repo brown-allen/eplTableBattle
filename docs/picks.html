@@ -279,9 +279,9 @@ can.</p>
 </div>
 <p>Drag the clubs into the order you think they will finish, or nudge
 them with the arrows. Your draft saves in this browser as you go, so you
-can close the tab and come back to it. When the table looks right, hit
-<strong>Copy my code</strong> at the bottom and send that one line to
-the Commisioner.</p>
+can close the tab and come back to it. The picker stays fully usable
+after the deadline so it can be shown to people — build a table, hit
+<strong>Copy my code</strong>, see what an entry looks like.</p>
 <script>
 const PICKER_DATA = {"teams":[{"name":"Arsenal","abbrev":"ARS","short":"Arsenal"},{"name":"Aston Villa","abbrev":"AVL","short":"Aston Villa"},{"name":"AFC Bournemouth","abbrev":"BOU","short":"Bournemouth"},{"name":"Brentford","abbrev":"BRE","short":"Brentford"},{"name":"Brighton & Hove Albion","abbrev":"BHA","short":"Brighton"},{"name":"Chelsea","abbrev":"CHE","short":"Chelsea"},{"name":"Coventry City","abbrev":"COV","short":"Coventry"},{"name":"Crystal Palace","abbrev":"CRY","short":"C Palace"},{"name":"Everton","abbrev":"EVE","short":"Everton"},{"name":"Fulham","abbrev":"FUL","short":"Fulham"},{"name":"Hull City","abbrev":"HUL","short":"Hull"},{"name":"Ipswich Town","abbrev":"IPS","short":"Ipswich"},{"name":"Leeds United","abbrev":"LEE","short":"Leeds"},{"name":"Liverpool","abbrev":"LIV","short":"Liverpool"},{"name":"Manchester City","abbrev":"MNC","short":"Man City"},{"name":"Manchester United","abbrev":"MAN","short":"Man United"},{"name":"Newcastle United","abbrev":"NEW","short":"Newcastle"},{"name":"Nottingham Forest","abbrev":"NFO","short":"Nottm Forest"},{"name":"Sunderland","abbrev":"SUN","short":"Sunderland"},{"name":"Tottenham Hotspur","abbrev":"TOT","short":"Spurs"}],"deadline":"2026-08-20T23:59:00-0400","locked":true};
 </script>
@@ -314,9 +314,9 @@ Copy my code
 <span id="copy-status" class="picker-status"></span>
 <textarea id="code-out" readonly rows="3" aria-label="Your pick code"></textarea>
 <p class="note">
-That single line is your whole table. Send it to the Commissioner any
-way you like — text, email, whatever. <strong>Nothing is submitted from
-this page</strong>.
+That single line is a whole table in one line. <strong>Nothing is
+submitted from this page</strong> — a code only counts once the
+Commissioner has it in hand.
 </p>
 </div>
 </div>
@@ -337,7 +337,10 @@ this page</strong>.
   var byAbbrev = {};
   TEAMS.forEach(function (t) { byAbbrev[t.abbrev] = t; });
 
-  function locked() { return new Date() >= DEADLINE; }
+  // Whether entries are closed. This governs what the page SAYS, not what it
+  // lets you do -- past the deadline the picker still works as a demo, it just
+  // stops pretending the code counts for anything.
+  function entriesClosed() { return new Date() >= DEADLINE; }
 
   /* ---- persistence ---------------------------------------------------- */
 
@@ -377,7 +380,7 @@ this page</strong>.
       var t  = byAbbrev[abbrev];
       var li = document.createElement("li");
       li.className = "club-item";
-      li.draggable = !locked();
+      li.draggable = true;
       li.dataset.index = i;
 
       li.innerHTML =
@@ -424,7 +427,7 @@ this page</strong>.
 
   listEl.addEventListener("click", function (e) {
     var btn = e.target.closest(".nudge");
-    if (!btn || locked()) return;
+    if (!btn) return;
     var i = +btn.closest(".club-item").dataset.index;
     move(i, i + (+btn.dataset.dir));
   });
@@ -433,7 +436,7 @@ this page</strong>.
 
   listEl.addEventListener("dragstart", function (e) {
     var li = e.target.closest(".club-item");
-    if (!li || locked()) return;
+    if (!li) return;
     dragFrom = +li.dataset.index;
     li.classList.add("dragging");
     e.dataTransfer.effectAllowed = "move";
@@ -465,7 +468,6 @@ this page</strong>.
   nameEl.addEventListener("input", function () { updateCode(); save(); });
 
   document.getElementById("btn-shuffle").addEventListener("click", function () {
-    if (locked()) return;
     for (var i = order.length - 1; i > 0; i--) {
       var j = Math.floor(Math.random() * (i + 1));
       var tmp = order[i]; order[i] = order[j]; order[j] = tmp;
@@ -474,7 +476,6 @@ this page</strong>.
   });
 
   document.getElementById("btn-alpha").addEventListener("click", function () {
-    if (locked()) return;
     order.sort(function (a, b) {
       return byAbbrev[a].name.localeCompare(byAbbrev[b].name);
     });
@@ -482,7 +483,6 @@ this page</strong>.
   });
 
   document.getElementById("btn-reset").addEventListener("click", function () {
-    if (locked()) return;
     if (!confirm("Clear your draft and start from the default order?")) return;
     order = TEAMS.map(function (t) { return t.abbrev; });
     nameEl.value = "";
@@ -496,18 +496,26 @@ this page</strong>.
       nameEl.focus();
       return;
     }
+    // Both the success and the manual-fallback message have to respect the
+    // deadline, or someone demoing the page is told to send in a code that
+    // will not be counted.
+    var tail = entriesClosed()
+      ? "demo only, this will not be entered."
+      : "now send it to the Commissioner.";
     var done = function () {
-      copyEl.textContent = "Copied — now send it to the Commissioner";
-      setTimeout(function () { copyEl.textContent = ""; }, 4000);
+      copyEl.textContent = "Copied — " + tail;
+      setTimeout(function () { copyEl.textContent = ""; }, 5000);
+    };
+    var manual = function () {
+      codeEl.select();
+      copyEl.textContent = "Press ⌘C to copy — " + tail;
     };
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(codeEl.value).then(done, function () {
-        codeEl.select(); copyEl.textContent = "Press ⌘C to copy.";
-      });
+      navigator.clipboard.writeText(codeEl.value).then(done, manual);
     } else {
       codeEl.select();
       try { document.execCommand("copy"); done(); }
-      catch (e) { copyEl.textContent = "Press ⌘C to copy."; }
+      catch (e) { manual(); }
     }
   });
 
@@ -516,12 +524,14 @@ this page</strong>.
   restore();
   render();
 
-  if (locked()) {
-    document.getElementById("picker").classList.add("is-locked");
-    ["btn-shuffle", "btn-alpha", "btn-reset", "btn-copy"].forEach(function (id) {
-      document.getElementById(id).disabled = true;
-    });
-    nameEl.disabled = true;
+  if (entriesClosed()) {
+    var note = document.createElement("p");
+    note.className = "note demo-note";
+    note.innerHTML = "<strong>Entries are closed.</strong> The picker below still " +
+      "works, so you can show someone how it went \u2014 but a code generated now " +
+      "is a demonstration and will not be entered.";
+    var host = document.getElementById("picker");
+    host.parentNode.insertBefore(note, host);
   }
 })();
 </script>
@@ -529,7 +539,7 @@ this page</strong>.
 Everything here happens in your browser — your draft never leaves this
 device until you send the code yourself. The page stops accepting
 changes after the deadline, but that check uses your device’s clock, so
-the entry that actually counts is the one the Commisioner has in
+the entry that actually counts is the one the Commissioner has in
 metaphorical hands when the table is frozen.
 </p>
 

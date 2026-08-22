@@ -11,8 +11,8 @@ cat(as.character(lock_banner()))
 
 Drag the clubs into the order you think they will finish, or nudge them with the
 arrows. Your draft saves in this browser as you go, so you can close the tab and
-come back to it. When the table looks right, hit **Copy my code** at the bottom
-and send that one line to the Commisioner.
+come back to it.
+`r if (submissions_closed()) "The picker stays fully usable after the deadline so it can be shown to people \u2014 build a table, hit **Copy my code**, see what an entry looks like." else "When the table looks right, hit **Copy my code** at the bottom and send that one line to the Commissioner."`
 
 ```{r inject, results='asis'}
 # The club list and the deadline come from the same files the rest of the site
@@ -48,8 +48,8 @@ escaped text instead of a form. -->
 <span class="picker-status" id="copy-status"></span>
 <textarea id="code-out" readonly rows="3" aria-label="Your pick code"></textarea>
 <p class="note">
-That single line is your whole table. Send it to the Commissioner any way you like — text,
-email, whatever. **Nothing is submitted from this page**.
+That single line is a whole table in one line. **Nothing is submitted from this
+page** — a code only counts once the Commissioner has it in hand.
 </p>
 </div>
 </div>
@@ -71,7 +71,10 @@ email, whatever. **Nothing is submitted from this page**.
   var byAbbrev = {};
   TEAMS.forEach(function (t) { byAbbrev[t.abbrev] = t; });
 
-  function locked() { return new Date() >= DEADLINE; }
+  // Whether entries are closed. This governs what the page SAYS, not what it
+  // lets you do -- past the deadline the picker still works as a demo, it just
+  // stops pretending the code counts for anything.
+  function entriesClosed() { return new Date() >= DEADLINE; }
 
   /* ---- persistence ---------------------------------------------------- */
 
@@ -111,7 +114,7 @@ email, whatever. **Nothing is submitted from this page**.
       var t  = byAbbrev[abbrev];
       var li = document.createElement("li");
       li.className = "club-item";
-      li.draggable = !locked();
+      li.draggable = true;
       li.dataset.index = i;
 
       li.innerHTML =
@@ -158,7 +161,7 @@ email, whatever. **Nothing is submitted from this page**.
 
   listEl.addEventListener("click", function (e) {
     var btn = e.target.closest(".nudge");
-    if (!btn || locked()) return;
+    if (!btn) return;
     var i = +btn.closest(".club-item").dataset.index;
     move(i, i + (+btn.dataset.dir));
   });
@@ -167,7 +170,7 @@ email, whatever. **Nothing is submitted from this page**.
 
   listEl.addEventListener("dragstart", function (e) {
     var li = e.target.closest(".club-item");
-    if (!li || locked()) return;
+    if (!li) return;
     dragFrom = +li.dataset.index;
     li.classList.add("dragging");
     e.dataTransfer.effectAllowed = "move";
@@ -199,7 +202,6 @@ email, whatever. **Nothing is submitted from this page**.
   nameEl.addEventListener("input", function () { updateCode(); save(); });
 
   document.getElementById("btn-shuffle").addEventListener("click", function () {
-    if (locked()) return;
     for (var i = order.length - 1; i > 0; i--) {
       var j = Math.floor(Math.random() * (i + 1));
       var tmp = order[i]; order[i] = order[j]; order[j] = tmp;
@@ -208,7 +210,6 @@ email, whatever. **Nothing is submitted from this page**.
   });
 
   document.getElementById("btn-alpha").addEventListener("click", function () {
-    if (locked()) return;
     order.sort(function (a, b) {
       return byAbbrev[a].name.localeCompare(byAbbrev[b].name);
     });
@@ -216,7 +217,6 @@ email, whatever. **Nothing is submitted from this page**.
   });
 
   document.getElementById("btn-reset").addEventListener("click", function () {
-    if (locked()) return;
     if (!confirm("Clear your draft and start from the default order?")) return;
     order = TEAMS.map(function (t) { return t.abbrev; });
     nameEl.value = "";
@@ -230,18 +230,26 @@ email, whatever. **Nothing is submitted from this page**.
       nameEl.focus();
       return;
     }
+    // Both the success and the manual-fallback message have to respect the
+    // deadline, or someone demoing the page is told to send in a code that
+    // will not be counted.
+    var tail = entriesClosed()
+      ? "demo only, this will not be entered."
+      : "now send it to the Commissioner.";
     var done = function () {
-      copyEl.textContent = "Copied — now send it to the Commissioner";
-      setTimeout(function () { copyEl.textContent = ""; }, 4000);
+      copyEl.textContent = "Copied — " + tail;
+      setTimeout(function () { copyEl.textContent = ""; }, 5000);
+    };
+    var manual = function () {
+      codeEl.select();
+      copyEl.textContent = "Press ⌘C to copy — " + tail;
     };
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(codeEl.value).then(done, function () {
-        codeEl.select(); copyEl.textContent = "Press ⌘C to copy.";
-      });
+      navigator.clipboard.writeText(codeEl.value).then(done, manual);
     } else {
       codeEl.select();
       try { document.execCommand("copy"); done(); }
-      catch (e) { copyEl.textContent = "Press ⌘C to copy."; }
+      catch (e) { manual(); }
     }
   });
 
@@ -250,12 +258,14 @@ email, whatever. **Nothing is submitted from this page**.
   restore();
   render();
 
-  if (locked()) {
-    document.getElementById("picker").classList.add("is-locked");
-    ["btn-shuffle", "btn-alpha", "btn-reset", "btn-copy"].forEach(function (id) {
-      document.getElementById(id).disabled = true;
-    });
-    nameEl.disabled = true;
+  if (entriesClosed()) {
+    var note = document.createElement("p");
+    note.className = "note demo-note";
+    note.innerHTML = "<strong>Entries are closed.</strong> The picker below still " +
+      "works, so you can show someone how it went \u2014 but a code generated now " +
+      "is a demonstration and will not be entered.";
+    var host = document.getElementById("picker");
+    host.parentNode.insertBefore(note, host);
   }
 })();
 </script>
@@ -264,5 +274,5 @@ email, whatever. **Nothing is submitted from this page**.
 Everything here happens in your browser — your draft never leaves this device
 until you send the code yourself. The page stops accepting changes after the
 deadline, but that check uses your device's clock, so the entry that actually
-counts is the one the Commisioner has in metaphorical hands when the table is frozen.
+counts is the one the Commissioner has in metaphorical hands when the table is frozen.
 </p>

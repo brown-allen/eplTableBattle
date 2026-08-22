@@ -212,3 +212,15 @@ caption {
   .club-item { padding: 0.55rem 0.5rem; }
   .nudge { width: 2.4rem; height: 2.3rem; }  /* thumb-sized on phones */
 }
+
+/* Shown on the picker once entries have closed: the controls still work, but
+   a code generated now is a demonstration rather than an entry. */
+.demo-note {
+  background: #eef3f8;
+  border-left: 5px solid #3f6fa8;
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  margin: 1rem 0;
+  color: #33475e;
+  font-size: 0.9rem;
+}
