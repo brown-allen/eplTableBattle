@@ -262,7 +262,7 @@ page** — a code only counts once the Commissioner has it in hand.
     var note = document.createElement("p");
     note.className = "note demo-note";
     note.innerHTML = "<strong>Entries are closed.</strong> The picker below still " +
-      "works, so you can show someone how it went \u2014 but a code generated now " +
+      "works \u2014 but a code generated now " +
       "is a demonstration and will not be entered.";
     var host = document.getElementById("picker");
     host.parentNode.insertBefore(note, host);
@@ -272,7 +272,5 @@ page** — a code only counts once the Commissioner has it in hand.
 
 <p class="note">
 Everything here happens in your browser — your draft never leaves this device
-until you send the code yourself. The page stops accepting changes after the
-deadline, but that check uses your device's clock, so the entry that actually
-counts is the one the Commissioner has in metaphorical hands when the table is frozen.
+until you send the code yourself. 
 </p>
