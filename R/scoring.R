@@ -160,7 +160,7 @@ score_all <- function(predictions, live, players = NULL,
       total_score  = sum(score),
       exact_hits   = sum(exact),
       within_one   = sum(off <= 1),
-      within_three = sum(off <= 3),
+      within_four  = sum(off <= 4),
       worst_miss   = max(off),
       .groups = "drop"
     )

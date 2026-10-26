@@ -88,7 +88,7 @@ render_leaderboard <- function(res) {
 
   out$Exact        <- lb$exact_hits
   out$`±1`         <- lb$within_one
-  out$`±3`         <- lb$within_three
+  out$`±4`         <- lb$within_four
   out$`Worst miss` <- lb$worst_miss
 
   ## The banner above already explains a closed scoring window, so the caption
