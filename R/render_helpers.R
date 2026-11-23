@@ -157,7 +157,7 @@ render_comparison_grid <- function(res, players) {
 
   ## Columns follow entrant_order(), not whatever order the prediction sheet
   ## happens to store, so this grid and the per-entrant sections on the
-  ## predictions page always run in the same sequence.
+  ## Scoring Detail page always run in the same sequence.
   ord <- entrant_order(players)
   keys <- intersect(ord$player, names(wide))
   wide <- wide[, c("predicted", keys)]

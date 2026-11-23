@@ -60,5 +60,5 @@ render_comparison_grid(RES, PLAYERS)
 
 <p class="note">
 Full per-entrant breakdowns, including how far off each pick currently is, are on
-the [predictions page](predictions.html).
+the [Scoring Detail](predictions.html) page.
 </p>

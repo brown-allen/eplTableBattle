@@ -1,5 +1,5 @@
 ---
-title: "Prediction Details"
+title: "Scoring Detail"
 ---
 
 ```{r, child="_setup.Rmd"}
