@@ -12,7 +12,7 @@ cat(as.character(lock_banner()))
 Each table below appears as submitted,
 `r if (submissions_closed()) "fixed at" else "and will be fixed at"`
 **`r fmt_when(CONFIG$submission_deadline)`**. The *Actual* column is where that club sits
-in the live table right now, and *Off by* is the damage.
+in the live table right now, and *Off by* is the relative accuracy of the pick. 
 
 ```{r sections, results='asis'}
 # Same order as the side-by-side grid on the front page, so the two pages can

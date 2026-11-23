@@ -12,7 +12,7 @@ exclude:
 navbar:
   title: "EPL Table Battle"
   left:
-  - text: "Table"
+  - text: "Standings"
     href: index.html
   - text: "Scoring Detail"
     href: predictions.html
